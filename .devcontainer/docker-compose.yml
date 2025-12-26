@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  workspace:
+    image: mcr.microsoft.com/vscode/devcontainers/base:ubuntu
+    volumes:
+      - ..:/workspaces/wp-plugin-codespace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sleep infinity
+    depends_on:
+      - wordpress
+      - db
+    network_mode: service:wordpress
+
+  db:
+    image: mysql:${MYSQL_VERSION:-5.7}
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:-wordpress}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        WP_VERSION: ${WP_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "${WP_HOST_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+    volumes:
+      - ../plugins-src/${PLUGIN_SLUG:-hello-world}:/var/www/html/wp-content/plugins/${PLUGIN_SLUG:-hello-world}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:

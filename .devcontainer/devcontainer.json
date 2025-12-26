@@ -1,0 +1,29 @@
+{
+  "name": "WordPress Plugin Development",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/wp-plugin-codespace",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "WordPress",
+      "onAutoForward": "notify"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "postCreateCommand": ".devcontainer/bin/wp-install.sh",
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "wongjn.php-sniffer"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php"
+      }
+    }
+  }
+}
