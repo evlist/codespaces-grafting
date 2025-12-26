@@ -18,7 +18,7 @@
     "DOCKER_API_VERSION": "1.43",
     "COMPOSE_PROJECT_NAME": "wp-plugin-codespace_devcontainer"
   },
-  "postCreateCommand": ".devcontainer/bin/wp-install.sh",
+  "postStartCommand": "bash -lc 'docker compose -f .devcontainer/docker-compose.yml -p \"$COMPOSE_PROJECT_NAME\" up -d db wordpress || true; .devcontainer/bin/wp-install.sh || true'",
   "remoteUser": "vscode",
   "customizations": {
     "vscode": {
