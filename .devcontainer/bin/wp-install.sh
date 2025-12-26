@@ -52,7 +52,7 @@ else
   wpcli rewrite flush
 fi
 
-# Always set siteurl/home to the active Codespaces forwarded URL for the configured port
+# Always set siteurl/home to the active Codespaces forwarded URL (443)
 wpcli option update siteurl "$TARGET_URL"
 wpcli option update home "$TARGET_URL"
 
