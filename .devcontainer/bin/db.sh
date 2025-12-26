@@ -8,7 +8,9 @@ cd "$(dirname "$0")/.."
 
 # Source environment variables
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    source .env
+    set +a
 fi
 
 # Execute mysql or mysqladmin commands

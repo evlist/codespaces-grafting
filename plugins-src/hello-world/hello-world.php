@@ -93,7 +93,7 @@ function hello_world_admin_notice() {
         <div class="notice notice-success is-dismissible">
             <p><strong>Hello World Plugin:</strong> Plugin is active and running! 
             <?php if ($activated) : ?>
-                Activated on <?php echo esc_html(date('F j, Y \a\t g:i a', strtotime($activated))); ?>
+                Activated on <?php echo esc_html(date_i18n('F j, Y \a\t g:i a', strtotime($activated))); ?>
             <?php endif; ?>
             </p>
         </div>
