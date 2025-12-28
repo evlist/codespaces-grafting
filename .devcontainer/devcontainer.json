@@ -1,34 +1,18 @@
 {
-  "name": "WordPress Plugin Development",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "workspace",
-  "workspaceFolder": "/workspaces/wp-plugin-codespace",
-  "forwardPorts": [8080],
-  "portsAttributes": {
-    "8080": {
-      "label": "WordPress",
-      "protocol": "http",
-      "autoForward": true
-    }
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-  },
-  "containerEnv": {
-    "DOCKER_API_VERSION": "1.43",
-    "COMPOSE_PROJECT_NAME": "wp-plugin-codespace_devcontainer"
-  },
-  "postStartCommand": "bash -lc 'docker compose -f .devcontainer/docker-compose.yml -p \"$COMPOSE_PROJECT_NAME\" up -d db wordpress || true; .devcontainer/bin/wp-install.sh || true'",
+  "name": "WP Plugin Codespace (single-container LAMP)",
+  "dockerFile": "Dockerfile",
   "remoteUser": "vscode",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "bmewburn.vscode-intelephense-client",
-        "wongjn.php-sniffer"
-      ],
-      "settings": {
-        "php.validate.executablePath": "/usr/local/bin/php"
-      }
-    }
-  }
+  "forwardPorts": [8080],
+  "containerEnv": {
+    "WP_DB_NAME": "wordpress",
+    "WP_DB_USER": "wordpress",
+    "WP_DB_PASS": "wordpress",
+    "WP_DB_HOST": "127.0.0.1",
+    "WP_TITLE": "Codespace Dev",
+    "WP_ADMIN_USER": "admin",
+    "WP_ADMIN_PASS": "admin",
+    "WP_ADMIN_EMAIL": "admin@example.com",
+    "PLUGIN_SLUG": "hello-world"
+  },
+  "postStartCommand": "/workspaces/wp-plugin-codespace/.devcontainer/bin/bootstrap-wp.sh"
 }
