@@ -3,7 +3,7 @@
   "dockerFile": "Dockerfile",
   "remoteUser": "vscode",
   "forwardPorts": [80],
-  "initializeCommand": "/workspaces/wp-plugin-codespace/.devcontainer/bin/merge-env.sh",
+  "initializeCommand": ".devcontainer/bin/merge-env.sh",
   "runArgs": ["--env-file", "/workspaces/wp-plugin-codespace/.devcontainer/tmp/.env.merged"],
   "postStartCommand": "/workspaces/wp-plugin-codespace/.devcontainer/bin/bootstrap-wp.sh"
 }

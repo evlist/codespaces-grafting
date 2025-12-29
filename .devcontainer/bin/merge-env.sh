@@ -4,8 +4,8 @@ set -euo pipefail
 log() { printf "[merge-env] %s\n" "$*"; }
 die() { printf "[merge-env:ERROR] %s\n" "$*" >&2; exit 1; }
 
-LOCALENV=${CODESPACE_VSCODE_FOLDER}/.env
-DEVCONTAINER=${CODESPACE_VSCODE_FOLDER}/.devcontainer
+LOCALENV=${PWD}/.env
+DEVCONTAINER=${PWD}/.devcontainer
 DEFAULTENV=${DEVCONTAINER}/.env
 TMP=${DEVCONTAINER}/tmp
 MERGEDENV=${TMP}/.env.merged
