@@ -4,9 +4,6 @@ set -euo pipefail
 log() { printf "[bootstrap] %s\n" "$*"; }
 die() { printf "[bootstrap:ERROR] %s\n" "$*" >&2; exit 1; }
 
-# Add a wp function andmake it available to terminals
-echo 'wp() { sudo -u www-data /usr/local/bin/wp "$@"; }' >> ~/.bash_aliases
-source ~/.bash_aliases
 
 DB_NAME="${WP_DB_NAME:-wordpress}"
 DB_USER="${WP_DB_USER:-wordpress}"
@@ -28,6 +25,9 @@ else
   WP_URL="http://localhost"  # forwardPorts: [80] in devcontainer.json
 fi
 
+# Add a wp function andmake it available to terminals
+echo 'wp() { sudo -u www-data /usr/local/bin/wp --path="$DOCROOT" "$@"; }' >> ~/.bash_aliases
+source ~/.bash_aliases
 
 # --- MariaDB startup (robust) ---
 log "Preparing MariaDB directories..."
@@ -159,5 +159,14 @@ sudo service apache2 restart || true
 # Pretty permalinks best-effort
 wp rewrite structure '/%postname%/' --path="$DOCROOT" >/dev/null 2>&1 || true
 wp rewrite flush --path="$DOCROOT" >/dev/null 2>&1 || true
+
+# Activate the plugin to test
+wp plugin activate $PLUGIN_SLUG
+
+# Create a first post
+wp post create --post_type=post --post_status=publish \
+  --post_title="Hello world!" \
+  --post_content="[local_hello_world]" \
+  --post_author=1
 
 log "Done. Visit $WP_URL"
