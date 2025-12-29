@@ -47,5 +47,5 @@ wp-config.php
 # uncomment the next line
 #/wp-content/themes
 
-# Dev-only WordPress docroot bind for Codespaces
-.devcontainer/wordpress-html/
+# Devcontainer temp dir
+.devcontainer/tmp/

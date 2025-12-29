@@ -3,18 +3,7 @@
   "dockerFile": "Dockerfile",
   "remoteUser": "vscode",
   "forwardPorts": [80],
-  "containerEnv": {
-    "WP_DB_NAME": "wordpress",
-    "WP_DB_USER": "wordpress",
-    "WP_DB_PASS": "wordpress",
-    "WP_DB_HOST": "127.0.0.1",
-    "WP_TITLE": "Codespace Dev",
-    "WP_ADMIN_USER": "admin",
-    "WP_ADMIN_PASS": "admin",
-    "WP_ADMIN_EMAIL": "admin@example.com",
-    "PLUGIN_SLUG": "local-hello-world",
-    "PLUGIN_DIR": "plugins-src/hello-world",
-    "WP_PLUGINS": "loco-translate"
-  },
+  "initializeCommand": "/workspaces/wp-plugin-codespace/.devcontainer/bin/merge-env.sh",
+  "runArgs": ["--env-file", "/workspaces/wp-plugin-codespace/.devcontainer/tmp/.env.merged"],
   "postStartCommand": "/workspaces/wp-plugin-codespace/.devcontainer/bin/bootstrap-wp.sh"
 }
