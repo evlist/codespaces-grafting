@@ -49,3 +49,6 @@ wp-config.php
 
 # Devcontainer temp dir
 .devcontainer/tmp/
+
+# .vscode/launch.json is generated
+.vscode/launch.json

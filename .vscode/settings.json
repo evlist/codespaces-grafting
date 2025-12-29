@@ -1,0 +1,41 @@
+{
+  "files.associations": {
+    "*.php": "php",
+    "*.inc": "php",
+    "*.module": "php"
+  },
+  "intelephense.stubs": [
+    "Core",
+    "standard",
+    "SPL",
+    "date",
+    "json",
+    "pcre",
+    "filter",
+    "mbstring",
+    "hash",
+    "iconv",
+    "curl",
+    "openssl",
+    "dom",
+    "libxml",
+    "SimpleXML",
+    "xml",
+    "xmlreader",
+    "xmlwriter",
+    "zip",
+    "PDO",
+    "mysqli",
+    "Reflection",
+    "Phar",
+    "wordpress"
+  ],
+  "intelephense.environment.phpVersion": "8.2",
+  "intelephense.diagnostics.runtime": "8.2",
+  "php.validate.executablePath": "/usr/bin/php",
+  "phpcs.standard": "WordPress",
+  "phpcs.ignorePatterns": [
+    "**/vendor/**",
+    "**/.devcontainer/**"
+  ]
+}

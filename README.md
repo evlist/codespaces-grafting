@@ -110,6 +110,71 @@ See `plugins-src/local-hello-world/README.md` for detailed usage and validation 
 - **Security**: Default credentials are weak and intended for local development only.
 - **Performance**: First startup may take several minutes as Docker images are downloaded and WordPress is configured.
 
+## Editor setup: PHP/WordPress IntelliSense
+
+This repo includes a VS Code configuration for PHP syntax highlighting, debugging with Xdebug, and IntelliSense for WordPress APIs. If you see “undefined function/constant/class” diagnostics from Intelephense, update the stubs list in `.vscode/settings.json`.
+
+### How to update `.vscode/settings.json` stubs
+
+1. Open `.vscode/settings.json` and edit the `intelephense.stubs` array.
+2. Use the exact, case‑sensitive names accepted by Intelephense. Recommended baseline for WordPress plugin work:
+
+```json
+"intelephense.stubs": [
+  "Core",
+  "standard",
+  "SPL",
+  "date",
+  "json",
+  "pcre",
+  "filter",
+  "mbstring",
+  "hash",
+  "iconv",
+  "curl",
+  "openssl",
+  "dom",
+  "libxml",
+  "SimpleXML",
+  "xml",
+  "xmlreader",
+  "xmlwriter",
+  "zip",
+  "PDO",
+  "mysqli",
+  "Reflection",
+  "Phar",
+  "wordpress"
+]
+```
+
+3. Save the file. Changes apply immediately. If the UI looks stale, run “Developer: Reload Window” from the Command Palette.
+
+Tips:
+- If a function shows as undefined, check its PHP manual page and add the stub for the extension listed there (examples: `strtotime` → `date`, `json_decode` → `json`, `preg_match` → `pcre`, `mb_strlen` → `mbstring`).
+- Avoid setting `intelephense.stubs` in `devcontainer.json` unless it matches your workspace list; devcontainer customizations can override workspace settings.
+- Ensure casing matches the accepted list exactly (e.g., `Core`, `SPL`, `PDO`, `SimpleXML`). Some names are capitalized, others are lowercase.
+
+### WP‑CLI IntelliSense
+
+To get IntelliSense for `WP_CLI` and common methods (`line`, `success`, `log`, `error`, etc.), we ship a local stub:
+
+- File: `.vscode/intelephense-stubs/wp-cli.php`
+- This stub is only for the editor and is not loaded by WordPress at runtime.
+
+If you use additional WP‑CLI APIs, extend the stub with the method signatures you need.
+
+### Extensions
+
+The devcontainer installs:
+- PHP Intelephense (`bmewburn.vscode-intelephense-client`)
+- PHP Debug (`xdebug.php-debug`)
+- PHPCS (`ikappas.phpcs`)
+- PHP Docblocker (`neilbrayfield.php-docblocker`)
+- WordPress Hooks IntelliSense (`johnbillion.vscode-wordpress-hooks`) — optional
+
+If an extension isn’t active in the remote container, open the Extensions view and “Install in Codespace …”, then “Developer: Reload Window”.
+
 
 ## 📚 Additional Resources
 
