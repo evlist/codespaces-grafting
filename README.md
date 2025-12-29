@@ -10,8 +10,8 @@ A complete GitHub Codespaces development environment for WordPress plugin debugg
 2. Wait for the devcontainer to build and the WordPress installation to complete (this takes a few minutes on first run)
 3. Once ready, you'll see a notification to open the WordPress site. Click it or navigate to the "Ports" tab and open port 8080
 4. Access WordPress:
-   - **Site URL**: `http://localhost:8080`
-   - **Admin URL**: `http://localhost:8080/wp-admin`
+   - **Site URL**: Follow the link in the "PORTS" tab
+   - **Admin URL**: `<Site URL>/wp-admin`
    - **Username**: `admin`
    - **Password**: `admin`
 
@@ -19,14 +19,12 @@ A complete GitHub Codespaces development environment for WordPress plugin debugg
 
 This devcontainer provides a complete WordPress development environment with:
 
-- **WordPress & MySQL**: Configurable versions via environment variables
+- **WordPress & MySQL**: Latest versions
 - **WP-CLI**: Pre-installed for command-line WordPress management
-- **Docker Compose**: Three-service architecture (workspace, wordpress, db)
-- **Helper Scripts**: Easy access to WP-CLI and MySQL from the workspace
 - **Automatic Setup**: Idempotent installer script completes WordPress configuration
 - **Plugin Mounting**: Local plugin directory automatically mounted and activated
 - **Sample Plugin**: "Local Hello World" plugin demonstrating WordPress features
-- **Port Forwarding**: WordPress accessible via Codespaces preview (port 8080)
+- **Port Forwarding**: WordPress accessible via Codespaces preview (port 80)
 
 ## 📁 Project Structure
 
