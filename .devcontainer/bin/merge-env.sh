@@ -16,7 +16,7 @@ rm -f $MERGEDENV
 for FILE in $DEFAULTENV $LOCALENV
 do
     log "Copying $FILE (if exists)"
-    echo "Copied from $FILE:" >> $MERGEDENV
+    echo "# Copied from $FILE:" >> $MERGEDENV
     cat $FILE >> $MERGEDENV 2>/dev/null || true
     echo >> $MERGEDENV
 done

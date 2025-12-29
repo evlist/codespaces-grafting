@@ -4,6 +4,6 @@
   "remoteUser": "vscode",
   "forwardPorts": [80],
   "initializeCommand": ".devcontainer/bin/merge-env.sh",
-  "runArgs": ["--env-file", "/workspaces/wp-plugin-codespace/.devcontainer/tmp/.env.merged"],
-  "postStartCommand": "/workspaces/wp-plugin-codespace/.devcontainer/bin/bootstrap-wp.sh"
+  "runArgs": ["--env-file", ".devcontainer/tmp/.env.merged"],
+  "postStartCommand": ".devcontainer/bin/bootstrap-wp.sh"
 }
