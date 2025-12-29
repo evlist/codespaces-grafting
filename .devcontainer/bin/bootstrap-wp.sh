@@ -169,4 +169,40 @@ wp post create --post_type=post --post_status=publish \
   --post_content="[local_hello_world]" \
   --post_author=1
 
+# Example: WP_PLUGINS="akismet, jetpack@12.4, https://downloads.wordpress.org/plugin/wp-mail-smtp.latest-stable.zip"
+if [ -n "${WP_PLUGINS:-}" ]; then
+  IFS=',' read -r -a _plugins <<< "$WP_PLUGINS"
+  for raw in "${_plugins[@]}"; do
+    plugin="$(echo "$raw" | xargs)"   # trim
+    [ -z "$plugin" ] && continue
+
+    # Version support: slug@x.y.z (skip if it's a URL/ZIP)
+    version=""
+    if [[ "$plugin" != http*://* && "$plugin" != *.zip && "$plugin" == *@* ]]; then
+      version="${plugin##*@}"
+      plugin="${plugin%%@*}"
+    fi
+
+    if [[ "$plugin" == http*://* || "$plugin" == *.zip ]]; then
+      # URL or ZIP install
+      wp plugin install "$plugin" --activate || echo "Failed to install from $plugin"
+    else
+      if wp plugin is-installed "$plugin"; then
+        # Already installed: activate, and optionally align to requested version
+        wp plugin activate "$plugin" || echo "Failed to activate $plugin"
+        if [ -n "$version" ]; then
+          wp plugin update "$plugin" --version="$version" || echo "Failed to update $plugin to $version"
+        fi
+      else
+        # Fresh install (with version if provided)
+        if [ -n "$version" ]; then
+          wp plugin install "$plugin" --version="$version" --activate || echo "Failed to install $plugin@$version"
+        else
+          wp plugin install "$plugin" --activate || echo "Failed to install $plugin"
+        fi
+      fi
+    fi
+  done
+fi
+
 log "Done. Visit $WP_URL"
