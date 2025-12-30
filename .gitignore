@@ -47,8 +47,7 @@ wp-config.php
 # uncomment the next line
 #/wp-content/themes
 
-# Devcontainer temp dir
+# Devcontainer temp and var dirs
 .devcontainer/tmp/
+.devcontainer/var/
 
-# .vscode/launch.json is generated
-.vscode/launch.json
