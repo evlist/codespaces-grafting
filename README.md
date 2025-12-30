@@ -36,13 +36,15 @@ This devcontainer provides a complete WordPress development environment with:
 
 ```
 .
+├── .env                        # Local environment variables overriding .devcontainer/.env
+├── bootstrap-local.sh          # Local bootstrap script
 ├── .devcontainer/
 │   ├── devcontainer.json       # VS Code devcontainer configuration
 │   ├── docker-compose.yml      # Docker Compose services definition
 │   ├── Dockerfile              # WordPress container with WP-CLI
 │   ├── .env                    # Environment variables (customizable)
 │   └── bin/
-│       ├── bootstrap-wp.sh     # Bootstrap: DB, Apache, WP core, symlinks
+│       ├── bootstrap-wp.sh     # Bootstrap: DB, Apache, WP core, symlinks, ends up calling the localbootstrap script
 │       └── merge-env.sh        # Merge .env files
 ├── .vscode/
 │   ├── launch.json             # Static PHP debug config (single mapping)
@@ -79,8 +81,48 @@ PLUGIN_DIR=plugins-src/hello-world
 WP_PLUGINS=loco-translate
 ```
 
-To customize your environment, edit these values before creating your codespace or rebuild after changes.
+To customize your environment, edit these values in the local .env file before creating your codespace or rebuild after changes.
 
+## 🧩 Optional: Local bootstrap script (LOCALBOOTSTRAP)
+
+To keep project‑generic bootstrap logic separate from plugin‑specific steps, you can provide a local script that runs at the very end of `.devcontainer/bin/bootstrap-wp.sh`.
+
+- Purpose: add site content, tweak settings, activate extra plugins/themes, etc., without modifying the shared bootstrap (e.g., skip creating the hello‑world post when debugging other plugins).
+- Execution model: the script is sourced (not executed), so it runs in the same shell and inherits all variables and the `wp` function defined by the bootstrap. Errors are logged but do not abort provisioning.
+- Where to declare: preferably in a workspace‑local `.env` file at the repository root, which is merged into `.devcontainer/.env` on startup.
+
+Setup
+
+1) Create your script in the repo (relative to workspace), e.g. `scripts/bootstrap-local.sh`:
+```bash
+#!/usr/bin/env bash
+# Example: seed content and adjust options
+log "Local bootstrap: seeding content"
+
+# The `wp` function is available and already targets $DOCROOT as www-data
+wp post create --post_type=post --post_status=publish \
+  --post_title="Hello from local script" \
+  --post_content="[local_hello_world name=\"Codespaces\"]" \
+  --post_author=1 || true
+
+# Example: activate additional plugins from your env
+# wp plugin install query-monitor --activate || true
+```
+
+2) In your workspace root `.env` file (not .devcontainer/.env), set the relative path:
+```env
+# file: .env (workspace root)
+LOCALBOOTSTRAP=scripts/bootstrap-local.sh
+```
+
+3) Rebuild the container or restart the Codespace to run the local bootstrap at the end of provisioning.
+
+Behavior details
+
+- If `LOCALBOOTSTRAP` is unset: nothing happens.
+- If set but the file isn’t found: a warning is logged and provisioning continues.
+- If the script returns non‑zero: the status is logged and provisioning continues.
+- Absolute paths are allowed; relative paths are resolved against `$WORKSPACE`.
 ## 🛠️ Available Commands
 
 ### WP-CLI Commands
