@@ -168,6 +168,20 @@ For better IntelliSense when writing WP‑CLI commands, we include a lightweight
 - [GitHub Codespaces Documentation](https://docs.github.com/en/codespaces)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
 
+## Credits
+
+This plugin was inspired by examples and guidance from:
+
+- [WordPress Plugin Developer Handbook](https://developer.wordpress.org/plugins/)
+- [WordPress REST API Handbook](https://developer.wordpress.org/rest-api/)
+- [Admin Bar API (`admin_bar_menu` / `add_node`)](https://developer.wordpress.org/reference/hooks/admin_bar_menu/)
+- [Admin Notices (`admin_notices`)](https://developer.wordpress.org/reference/hooks/admin_notices/)
+- [WP‑CLI Handbook and Commands Cookbook](https://make.wordpress.org/cli/handbook/) · [Commands cookbook](https://make.wordpress.org/cli/handbook/commands-cookbook/)
+- [Hello Dolly plugin](https://wordpress.org/plugins/hello-dolly/) for a minimal plugin structure
+- [WordPress Coding Standards](https://github.com/WordPress/WordPress-Coding-Standards)
+
+Developed in GitHub Codespaces with assistance from GitHub Copilot.
+
 ## 📄 License
 
 This project is licensed under the GPL-3.0 - see the LICENSE file for details.
