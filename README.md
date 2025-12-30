@@ -37,9 +37,7 @@ This devcontainer provides a complete WordPress development environment with:
 │   ├── .env                    # Environment variables (customizable)
 │   └── bin/
 │       ├── bootstrap-wp.sh     # Bootstrap: DB, Apache, WP core, symlinks
-│       ├── wp.sh               # WP-CLI wrapper script
-│       ├── db.sh               # MySQL client wrapper script
-│       └── wp-install.sh       # WordPress installation script
+│       └── merge-env.sh        # Merge .env files
 ├── .vscode/
 │   ├── launch.json             # Static PHP debug config (single mapping)
 │   └── intelephense-stubs/
