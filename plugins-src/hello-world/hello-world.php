@@ -1,4 +1,9 @@
 <?php
+
+// SPDX-FileCopyrightText: 2025 Eric van der Vlist <vdv@dyomedea.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+
 /**
  * Plugin Name: Local Hello World
  * Plugin URI: https://github.com/evlist/wp-plugin-codespace

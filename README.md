@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Eric van der Vlist <vdv@dyomedea.com>
+
+SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+-->
+
 # wp-plugin-codespace
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=evlist/wp-plugin-codespace)
@@ -182,6 +188,11 @@ This plugin was inspired by examples and guidance from:
 
 Developed in GitHub Codespaces with assistance from GitHub Copilot.
 
-## 📄 License
+## License
 
-This project is licensed under the GPL-3.0 - see the LICENSE file for details.
+This project is dual-licensed:
+
+- GPL-3.0-or-later OR
+- MIT
+
+You may choose either license. See the [LICENSE](LICENSE) file and the full texts in the LICENSES/ directory.

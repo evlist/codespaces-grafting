@@ -1,4 +1,9 @@
 <?php
+
+// SPDX-FileCopyrightText: 2025 Eric van der Vlist <vdv@dyomedea.com>
+//
+// SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+
 // Auto-generated stub for VS Code / Intelephense only.
 // This file is NOT loaded by WordPress at runtime. It's here for editor intelligence.
 

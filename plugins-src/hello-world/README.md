@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Eric van der Vlist <vdv@dyomedea.com>
+
+SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+-->
+
 # Local Hello World Plugin
 
 A sample WordPress plugin demonstrating various WordPress development features.

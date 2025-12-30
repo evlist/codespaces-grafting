@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Eric van der Vlist <vdv@dyomedea.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+
 # Single-container dev image with Apache, MariaDB, PHP, WP-CLI, and GitHub CLI
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu
 
