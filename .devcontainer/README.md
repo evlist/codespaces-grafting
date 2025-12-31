@@ -6,14 +6,14 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 
 # .devcontainer — technical notes
 
-🛠️ This document explains the components, workflow and operational details of the devcontainer and installer/updater shipped in this template. It is aimed at maintainers who will copy `.devcontainer` and `.vscode` into their plugin repository and use the installer to keep them up to date.
+🛠️ This document explains the components, workflow and operational details of the devcontainer and installer/updater shipped in this template. It is aimed at maintainers who will copy `.devcontainer` (and the required `.vscode/` configuration) into their plugin repository and use the installer to keep them up to date.
 
 ## Contents
 - `devcontainer.json` — container configuration for Codespaces and Remote‑Containers.
 - `bin/install.sh` — installer/updater script that syncs the upstream template into a repo and helps with first‑run choices.
-- `.vscode/` — optional editor configuration samples and baselines.
+- `.vscode/` — required editor configuration and stubs (treated like template-level configuration).
 
-> Note: this template intentionally does not include an automated helper to materialize `.cs_env`. Creating `.cs_env` from `.cs_env.example` is an opt‑in, manual step (see "Environment files" below).
+> Note: this template intentionally does not automatically create `./.cs_env`. If you want Codespace-specific values, copy `.devcontainer/.cs_env` to the workspace root and edit it manually (see "Environment files" below).
 
 ## 🔁 Installer vs Updater
 - `bin/install.sh` is both the installer (first run) and the updater (subsequent runs).
@@ -22,10 +22,10 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
   2. From an up‑to‑date clone of your plugin repo: `bash /path/to/install.sh`.
   3. Inspect changes, commit and push.
 - Upgrades:
-  Inside the Codespace use one of these two aliases for convenience:
-  - `cs_install`.
-  - `cs_update`.
-- Both aliases are synonyms and point to the same script to make interactive upgrades easy.
+  - Inside the Codespace use one of these two aliases for convenience:
+    - `cs_install`
+    - `cs_update`
+  - Both aliases are synonyms and point to the same script to make interactive upgrades easy.
 
 ## 🔍 Preflight & .gitignore checks
 - Before copying files the installer builds a list of repo‑relative upstream destinations (directories and files) and runs:
@@ -34,50 +34,47 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
   ```
   to detect which paths would be ignored by your repo `.gitignore`.
 - Behavior:
-  - Non‑dry‑run: abort if any required paths would be ignored (prevents accidentally omitting essential files).
+  - Non‑dry‑run: abort if any required paths would be ignored (prevents accidentally omitting template files).
   - Dry‑run: print problems and continue (no files written).
-- This prevents common breakage such as missing `.env`/config files at Codespace creation.
 
 ## 🔄 Update semantics for `.vscode`
-While `.devcontainer/` is considered as "belonging" to the `wp-plugin-codespace` and is overriden during
-each upgrade (meaning that any local update will be lost), `.vscode/` may already exist in your repository
-and you may want to tailor it to your needs.
+`.devcontainer/` is considered part of the `wp-plugin-codespace` template and is overwritten during each upgrade (local edits will be lost). `.vscode/` is template-level configuration that repositories typically customize; to avoid silently overriding local changes the updater tracks edits and prompts you when it finds conflicts.
 
-To avoid silent overrides, we track local changes and let you decide what to do when we detect conflicts.
+(The workflow is similar to how Debian/Ubuntu package upgrades handle local configuration files.)
 
-**Note: if you are familiar with Debian (or Ubuntu) this will look familiar to you**
-
-- New upstream file → add and create `.orig` baseline.
+- New upstream file → add it and create a `.orig` baseline.
 - Identical to upstream → keep local and update baseline if needed.
 - Upstream changed, local unmodified (matches baseline) → replace and update baseline.
 - Local differs from baseline → interactive choices:
-  - keep local, replace, backup+replace, save upstream sample (`.dist`), attempt 3‑way merge, or skip.
+  - keep local, replace, backup+replace, save upstream sample (`.dist`), attempt a 3‑way merge, or skip.
 
 ## 🔐 Environment files (manual)
-- Rationale: many repositories use `.env` before any Codespace is installed; to avoid interfering with those workflows we keep Codespace-specific variables distinct.
-- Default env values are defined in `.devcontainer/.cs_env` (overriden during each upgrade, see previous section)
-- These values are overriden by `./.cs_env` ifthe file exists
-- The installer/updater does not automatically create or modify `./.cs_env`; materializing is left to devs inside the codespace.
-- The codespace will ignore `./.cs_env` if it doesn't exist.
-- `.env` files are ignored.
+- Rationale: many projects already use `.env` before a Codespace is installed; to avoid interfering we keep Codespace-specific variables separate.
+- Template defaults live in `.devcontainer/.cs_env`. If you want to supply workspace-specific values, copy that file to the workspace root and edit `./.cs_env` as needed:
+  ```bash
+  cp .devcontainer/.cs_env ./.cs_env
+  ```
+- The installer/updater does not create or modify `./.cs_env`; materialization is explicitly manual and opt‑in.
+- If `./.cs_env` is absent the Codespace will proceed using template defaults where applicable.
+- `.env` files are intentionally left alone.
 
 ## 🧾 Updater artifact conventions
-- `.orig` — baseline copy next to local files (used as merge ancestor).
-- `.dist` — upstream sample saved when keeping local changes but preserving upstream content.
+- `.orig` — baseline copy next to local files (used as a merge ancestor).
+- `.dist` — upstream sample saved when keeping local changes while preserving the upstream content.
 - `.bak.*` — timestamped backups created before destructive changes.
 
 ## 🧰 Tools available inside the Codespace
 - The Codespace image ships with useful CLI tools to simplify workflows:
   - `gh` — GitHub CLI (releases, PRs, issues).
   - `reuse` — SPDX/REUSE helper for licensing checks.
-- These are installed so maintainers can run release and licensing commands within the Codespace.
+- These tools let maintainers run release and licensing commands without extra setup.
 
 ## ⚙️ Dry‑run behavior
 - `--dry-run` prints intended actions and preflight findings but never writes files. Use this in CI or to preview changes.
 
 ## 🧪 Troubleshooting
 - Blank Markdown preview in Firefox: prefer a Chromium‑based browser or polyfill `AbortSignal.any` (Firefox compatibility issue with VS Code webviews).
-- Codespace site returns 401: ensure required env keys are present (provided via `.cs_env` or Codespaces secrets) and that `.env` was not accidentally overwritten.
+- Codespace site returns 401: ensure required env keys are present (provided via `./.cs_env` or Codespaces secrets) and that `.env` was not accidentally overwritten.
 
 ## 📌 Common commands
 - Preview installer actions:
@@ -93,9 +90,9 @@ To avoid silent overrides, we track local changes and let you decide what to do 
   cs_install    # run installer
   cs_update     # run updater (same script)
   ```
-- Create a `.cs_env` manually from the example:
+- Create a `./.cs_env` manually from the template:
   ```bash
-  cp .cs_env.example .cs_env
+  cp .devcontainer/.cs_env ./.cs_env
   ```
 
 ## License

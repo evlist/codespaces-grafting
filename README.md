@@ -8,37 +8,38 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 
 # wp-plugin-codespace
 
-🧰 A lightweight, shareable Codespaces / devcontainer scaffold for WordPress plugin authors.
+🧰 A lightweight, shareable Codespaces/devcontainer scaffold for WordPress plugin authors.
 
-This repository provides an easy way for WP plugin developers to ship a zero‑install, ready‑to‑use development environment — preconfigured with PHP, WP‑CLI, a webserver and common editor config — so contributors, contractors and reviewers can open a Codespace (or a local devcontainer) and start working immediately.
+This repository makes it straightforward for WordPress plugin authors to provide a zero‑install, ready‑to‑use development environment. The devcontainer is preconfigured with PHP, WP‑CLI, a webserver and editor settings so contributors, contractors, and reviewers can open a Codespace (or use a local devcontainer) and start working immediately.
 
 ## 🔎 Why this repo exists
-- Problem: onboarding WP plugin development often requires installing PHP, a webserver, DB, extensions and bootstrapping WordPress locally.
+- Problem: onboarding for WordPress plugin development often requires installing PHP, a webserver, a database, extensions and bootstrapping WordPress locally.
 - Goal: remove that friction — clone, open a Codespace, and start coding.
 
 ## 👥 Who should use this
-- WordPress plugin authors and maintainers who want:
-  - A reproducible, shareable dev environment for contributors.
-  - A quick way to demo a plugin without asking others to install and configure PHP/Apache/MySQL.
-  - An easy updater to adopt improvements to the template.
+This template is intended for:
+- WordPress plugin authors and maintainers who want a reproducible, shareable development environment.
+- People who need to demo or test a plugin quickly without asking contributors to set up local infrastructure.
+- Teams that want an easy way to adopt template improvements via a simple updater.
 
 ## ✨ What this provides
-- A compact `.devcontainer/` (and optional `.vscode/`) preconfigured for plugin development.
-- A small installer/updater script to add or refresh the devcontainer & editor snippets in your plugin repo.
-- A simple convention for Codespace-specific environment samples (`.cs_env.example`) while keeping project `.env` usage independent.
-- Helpful CLI tools preinstalled in the Codespace: `gh` (GitHub CLI) and `reuse`.
-- Interactive, conservative update semantics (baselines `.orig`, upstream samples `.dist`, backups `.bak.*`).
+- A compact `.devcontainer/` and a required `.vscode/` directory preconfigured for plugin development (think of `.vscode/` as template configuration similar to `/etc` on a system).
+- A single installer/updater script to add or refresh the devcontainer and editor snippets in your plugin repo.
+- A convention for Codespace-specific configuration: copy `.devcontainer/.cs_env` into your workspace as `./.cs_env` and edit values as needed.
+- Useful CLI tools installed in the Codespace, such as `gh` (GitHub CLI) and `reuse`.
+- Conservative update semantics (baseline `.orig`, upstream samples `.dist`, backups `.bak.*`) that preserve local edits.
 
 ## ⚙️ Main principles
-- Track only the minimal configuration needed for a reproducible dev environment.
-- Keep secrets out of git; commit a safe example (`.cs_env.example`) and allow maintainers to provide runtime values via Codespaces secrets or by creating a local `.cs_env`.
-- Provide a simple installer that doubles as an updater so plugin repos can stay in sync with improvements.
-- Make updates explicit and reversible (baseline files, dist samples and backups).
+- Track only the minimal configuration required for a reproducible dev environment.
+- Keep secrets out of git; the template provides `.devcontainer/.cs_env` which you can copy to `./.cs_env` and edit locally or provide values via Codespaces secrets.
+- Use a single script as both installer and updater so repositories can stay in sync with the template without losing local customizations.
+- Make updates explicit and reversible with baselines, samples and backups.
 
 ## 🚀 Quick install (recommended, minimal)
-1. Download the installer outside the repo (do not add it to your repo):
+1. Download the installer to your workstation (do not add it to the repo):
    ```bash
-   curl -L -o ~/Downloads/install.sh https://raw.githubusercontent.com/evlist/wp-plugin-codespace/main/.devcontainer/bin/install.sh
+   curl -L -o ~/Downloads/install.sh \
+     https://raw.githubusercontent.com/evlist/wp-plugin-codespace/main/.devcontainer/bin/install.sh
    chmod +x ~/Downloads/install.sh
    ```
 2. From a local, up‑to‑date clone of your plugin repository:
@@ -46,9 +47,9 @@ This repository provides an easy way for WP plugin developers to ship a zero‑i
    cd /path/to/your-plugin-repo
    bash ~/Downloads/install.sh
    ```
-   - On first run the script acts as an installer and will guide you through choices.
-   - After first run the same script serves as the updater.
-3. Commit and push:
+   - On first run the script acts as an installer and will guide you through initial choices.
+   - On subsequent runs the same script acts as the updater.
+3. Inspect the changes, then commit and push:
    ```bash
    git add .
    git commit -m "Add Codespace/devcontainer"
@@ -57,58 +58,54 @@ This repository provides an easy way for WP plugin developers to ship a zero‑i
 4. Open your repository in a GitHub Codespace or locally with Remote - Containers.
 
 ## 🔁 Updater (inside Codespace)
-- The Codespace image provides two convenience aliases to simplify updates:
+- The Codespace image exposes two convenient aliases:
   - `cs_install` — run the installer (initial setup).
   - `cs_update`  — run the updater (same script, named for clarity).
-- Both aliases point to the same `bin/install.sh` helper so updating is easy and interactive.
+- Both aliases point to the same `bin/install.sh` script and simplify interactive updates from inside the Codespace.
 
 ## 📝 Environment files (manual approach)
-- We deliberately keep Codespace-specific variables separate from project `.env` files.
-- If you want a Codespace-specific env file, create it manually from the example:
+- We keep Codespace-specific variables separate from project `.env` files.
+- The template ships `.devcontainer/.cs_env`. If you want Codespace-specific values, copy it to the workspace root and edit:
   ```bash
-  # optional: create a Codespace-specific env file
-  cp .cs_env.example .cs_env
+  cp .devcontainer/.cs_env ./.cs_env
   ```
-- Alternatively, supply required values via Codespaces secrets or create `.cs_env` interactively inside the Codespace.
-- The installer/updater does not depend on any helper to materialize `.cs_env`; that remains an opt-in, manual step.
+- Alternatively, provide values using Codespaces repository secrets.
+- The installer/updater does not automatically create or modify `./.cs_env` or project `.env`; creating or updating `./.cs_env` is intentionally manual.
 
 ## 🧪 Dry-run and automation
 - Preview changes without modifying files:
   ```bash
   bash ~/Downloads/install.sh --dry-run
   ```
-- Use `--ref <branch-or-tag>` to pick an upstream ref (default: `stable`).
-- Use `--yes` to accept defaults non‑interactively.
-- Prefer running `--dry-run` in CI to detect `.gitignore` or other issues before merging.
+- Choose an upstream ref: `--ref <branch-or-tag>` (default: `stable`).
+- Run non-interactively: `--yes`.
+- Use `--dry-run` in CI to detect issues (for example, accidental ignores) before merging.
 
 ## 📝 Recommended .gitignore hints
-- Keep secrets out of git:
-  ```
-  .env
-  .env.*
-  ```
-- Ignore updater artifacts (recommended):
-  ```
-  .vscode/*.dist
-  .vscode/*.bak.*
-  .devcontainer/tmp/
-  .devcontainer/var/
-  ```
+Keep secrets and updater artifacts out of git:
+```
+.env
+.env.*
+.vscode/*.dist
+.vscode/*.bak.*
+.devcontainer/tmp/
+.devcontainer/var/
+```
 
 ## 📁 Project Structure
 
 ```
 .
-├── .cs_env                        # Local environment variables overriding .devcontainer/.cs_env
+├── .cs_env                        # Local environment variables (workspace-local; copy from .devcontainer/.cs_env if needed)
 ├── bootstrap-local.sh             # Local bootstrap script
 ├── .devcontainer/
 │   ├── devcontainer.json          # VS Code devcontainer configuration
 │   ├── docker-compose.yml         # Docker Compose services definition
 │   ├── Dockerfile                 # WordPress container with WP-CLI
 │   ├── README.md                  # Technical notes
-│   ├── .cs_env                    # Environment variables (non customizable, use ./.cs_env instead)
+│   ├── .cs_env                    # Template environment variables (copy to workspace root to customize)
 │   └── bin/
-│       ├── bootstrap-wp.sh        # Bootstrap: DB, Apache, WP core, symlinks, ends up calling the localbootstrap script
+│       ├── bootstrap-wp.sh        # Bootstrap: DB, Apache, WP core, symlinks, calls local bootstrap if present
 │       ├── install.sh             # Install and update script
 │       └── merge-env.sh           # Merge .cs_env files
 ├── .vscode/
