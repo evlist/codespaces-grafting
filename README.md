@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2025 Eric van der Vlist <vdv@dyomedea.com>
+SPDX-FileCopyrightText: 2025, 2026 Eric van der Vlist <vdv@dyomedea.com>
 
 SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 -->
@@ -142,3 +142,8 @@ This project is dual-licensed:
 - MIT
 
 You may choose either license. See the [LICENSE](LICENSE) file and the full texts in the LICENSES/ directory.
+
+To update the license year:
+```
+$ reuse annotate -r --year "2025-2026" --copyright "Eric van der Vlist <vdv@dyomedea.com>" --license "GPL-3.0-or-later OR MIT" --merge-copyrights --fallback-dot-license .
+```
