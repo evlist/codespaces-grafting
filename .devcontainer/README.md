@@ -37,7 +37,7 @@ Scion structure (short)
 - From a workstation:
   ```bash
   curl -L -o ~/Downloads/graft.sh \
-    https://raw.githubusercontent.com/evlist/codespaces-grafting/main/.devcontainer/bin/graft.sh
+    https://raw.githubusercontent.com/evlist/codespaces-grafting/stable/.devcontainer/bin/graft.sh
   chmod +x ~/Downloads/graft.sh
   cd /path/to/your-repo
   bash ~/Downloads/graft.sh      # or: bash ~/Downloads/graft.sh --dry-run
