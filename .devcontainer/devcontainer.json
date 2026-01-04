@@ -1,5 +1,5 @@
 {
-  "name": "WP Plugin Codespace (single-container LAMP)",
+  "name": "Codespaces Grafting (LAMP/WP oriented)",
   "dockerFile": "Dockerfile",
   "remoteUser": "vscode",
   "forwardPorts": [80],
