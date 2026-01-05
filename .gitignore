@@ -55,3 +55,5 @@ wp-config.php
 .devcontainer/tmp/
 .devcontainer/var/
 
+# Graft provenance (generated per stock instance)
+.devcontainer/.cs_env.d/graft.env
