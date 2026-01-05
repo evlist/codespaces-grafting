@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 This scion is to a repository what a plant scion is to a stock: graft the scion (this Codespace/devcontainer template) into a repo to give it an instant, reproducible development environment.
 
 What’s in the scion (high level)
-- devcontainer.json, Dockerfile, docker-compose.yml — container & Codespaces config
+- devcontainer.json, Dockerfile — container & Codespaces config
 - bin/graft.sh — installer/updater script (graft)
 - .vscode/ — editor configuration, snippets and stubs (template-managed)
 - docs/ — scion-maintainer docs (upgrade guides, internals)

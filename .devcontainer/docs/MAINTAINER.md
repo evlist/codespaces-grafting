@@ -6,16 +6,14 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 
 # MAINTAINER — scion operational notes
 
-This document restores the detailed maintainer guidance that used to live in the longer READMEs. It's intended for people who maintain or evolve the scion (the `.devcontainer/` template) and for repository maintainers who will graft the scion into their projects.
-
-TODO: update this file with the latest updates.
+This document provides detailed maintainer guidance for people who maintain or evolve the scion (the `.devcontainer/` template) and for repository maintainers who will graft the scion into their projects.
 
 Keep this file with the scion so maintainer guidance travels with the template and doesn't pollute the stock repository.
 
 Summary
-- Purpose: explain preflight checks, environment file conventions, updater semantics (.orig/.dist/.bak), dry‑run behavior and common commands.
+- Purpose: explain preflight checks, environment file conventions, updater semantics (.orig/.dist/.bak), dry‑run behavior and available command-line flags.
 - Audience: scion maintainers and repository maintainers who accept updates.
-- Assumption: the runtime installer (`graft.sh`) honors UPSTREAM_SCION and derived GRAFT_URL; it does not source workspace `.cs_env` automatically.
+- Assumption: the graft.sh script can be invoked with flags (--scion, --stock, --dry-run, etc.) or without flags to use defaults.
 
 Contents
 - Preflight & .gitignore checks
@@ -76,30 +74,6 @@ Why we don't auto-source `./.cs_env`
 
 ---
 
-## UPSTREAM_SCION and GRAFT_URL (how the installer selects the scion)
-
-- UPSTREAM_SCION format: owner/repo@ref (example: `evlist/codespaces-grafting@stable`)
-  - The installer derives a raw URL for the graft installer as:
-    `https://raw.githubusercontent.com/<owner/repo>/<ref>/.devcontainer/bin/graft.sh`
-- Resolution priority inside the installer:
-  1. An already-exported GRAFT_URL (explicit raw URL) — highest precedence
-  2. Otherwise derive GRAFT_URL from UPSTREAM_SCION as shown above
-  3. Ultimately fall back to the baked-in default UPSTREAM_SCION if none provided
-
-Examples
-- Use explicit raw URL:
-  ```bash
-  export GRAFT_URL="https://raw.githubusercontent.com/evlist/codespaces-grafting/stable/.devcontainer/bin/graft.sh"
-  curl -L -o ~/Downloads/graft.sh "$GRAFT_URL"
-  ```
-- Use UPSTREAM_SCION (installer derives URL):
-  ```bash
-  export UPSTREAM_SCION="evlist/codespaces-grafting@stable"
-  # installer uses derived GRAFT_URL; you can still curl with the derived URL if needed
-  ```
-
----
-
 ## Updater semantics and artifact conventions
 
 The installer/updater preserves local edits and uses conservative semantics inspired by Debian's dpkg config file handling.
@@ -131,18 +105,25 @@ Interactive guidance
 
 ## Dry‑run and automation
 
-Flags and examples
-- `--dry-run` — report intended actions and exit without modifying files. Use in CI to detect accidental ignores or policy violations.
-- `--ref <branch-or-tag>` — allow selecting a specific upstream ref (branch, tag, or commitish). Defaults to the scion's chosen default (e.g., `stable` or `main`).
-- `--yes` — for scripted runs: accept non-destructive defaults where sensible. Use with care.
+Available flags
+- `--dry-run` — report intended actions and exit without modifying files. Use to preview changes before applying.
+- `--non-interactive` — accept defaults and do not prompt for user input. Useful in CI/automation.
+- `--push` — push the graft branch to origin after applying changes.
+- `--debug` — enable debug output to understand script behavior.
+- `--scion <spec>` — specify the scion repository (owner/repo, URL, or local path).
+- `--stock <spec>` — specify the stock repository (owner/repo, URL, or local path).
+- `--tmp <dir>` — use a custom temporary directory for cloning.
+- `--target-stock-branch <name>` — custom branch name for the graft branch (default: graft/TIMESTAMP).
 
 CI usage
 - Recommended pattern:
-  1. Run `bash bin/graft.sh --ref <ref> --dry-run` as a pre-flight check in CI.
-  2. Inspect results and only run an apply step with `--yes` in controlled automation (or create a pull request for manual review).
+  1. Run `bash bin/graft.sh --dry-run` as a pre-flight check to verify what would change.
+  2. Inspect results before applying in controlled automation (review changes or create a pull request).
+  3. Run `bash bin/graft.sh --push` to apply and push in automated workflows.
 
 Exit codes
-- Define and document exit codes in the script (0 success, >0 failure types). Ensure CI treats non-zero exit as failure.
+- 0 = success
+- non-zero = failure (script aborts on errors due to `set -euo pipefail`)
 
 ---
 
