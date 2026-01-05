@@ -169,6 +169,27 @@ parse_repo_spec() {
   return 1
 }
 
+# ---- resolve local path to canonical GitHub ID ----
+resolve_to_canonical_id() {
+  local spec="$1"
+  
+  # If it's a directory with a git remote, derive the canonical repo ID
+  if [ -d "$spec/.git" ]; then
+    local origin_url origin_canon
+    origin_url="$(git -C "$spec" config --get remote.origin.url 2>/dev/null || true)"
+    if [ -n "$origin_url" ]; then
+      if origin_canon="$(parse_repo_spec "$origin_url")"; then
+        debug "Resolved '$spec' to canonical ID: github:$origin_canon"
+        printf 'github.com:%s\n' "$origin_canon"
+        return 0
+      fi
+    fi
+  fi
+  
+  # Otherwise return as-is (already a GitHub ID or URL)
+  printf '%s\n' "$spec"
+}
+
 # ---- clone remote into tmp_base/<owner>/<repo> (no timestamp) ----
 clone_remote_into_tmp() {
   local repo="$1"; local tmp_base="$2"; local ref="${3:-}"
@@ -455,10 +476,15 @@ push_branch() {
 # ---- provenance ----
 record_provenance_file() {
   local target_dir="$1" scion_spec="$2" scion_ref="$3" scion_commit="$4"
+
+  # Resolve scion_spec to canonical GitHub ID if it's a local path
+  local scion_canonical
+  scion_canonical="$(resolve_to_canonical_id "$scion_spec")"
+  
   mkdir -p "$target_dir/.devcontainer"
   cat > "$target_dir/.devcontainer/.graft.json" <<EOF
 {
-  "scion": "${scion_spec}",
+  "scion": "${scion_canonical}",
   "scion_ref": "${scion_ref}",
   "scion_commit": "${scion_commit}",
   "installed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
@@ -553,20 +579,25 @@ if [ -n "${SCION_LOCAL_PATH:-}" ] && [ -d "$SCION_LOCAL_PATH/.git" ]; then
   if [ -n "$(git -C "$SCION_LOCAL_PATH" status --porcelain 2>/dev/null || true)" ]; then scion_dirty_msg=" (local working tree has uncommitted changes)"; fi
   if [ "$NON_INTERACTIVE" != "true" ]; then
     if prompt_confirm "Scion is a local git repo at $SCION_LOCAL_PATH${scion_dirty_msg}. Re-clone scion from its origin remote into a clean tmp dir before graft?" no; then
-      origin_url="$(git -C "$SCION_LOCAL_PATH" config --get remote.origin.url || true)"
-      if [ -n "$origin_url" ]; then
-        info "Re-cloning scion from $origin_url into tmp for a clean copy..."
-        if ! origin_canon="$(parse_repo_spec "$origin_url")"; then warn "Could not parse origin url; using local path"; else SCION_LOCAL_PATH="$(clone_remote_into_tmp "$origin_canon" "$TMP_BASE" "$SCION_REF")"; SCION_IS_LOCAL=true; fi
+      # Use resolve_to_canonical_id instead of manual conversion
+      local origin_canon
+      origin_canon="$(resolve_to_canonical_id "$SCION_LOCAL_PATH")"
+      if [ "$origin_canon" != "$SCION_LOCAL_PATH" ]; then
+        info "Re-cloning scion from $origin_canon into tmp for a clean copy..."
+        SCION_LOCAL_PATH="$(clone_remote_into_tmp "$origin_canon" "$TMP_BASE" "$SCION_REF")"
+        SCION_IS_LOCAL=true
       else
-        warn "No origin remote found; skipping reclone."
+        warn "Could not resolve origin; using local path"
       fi
     fi
   else
     # non-interactive default: reclone if origin exists
-    origin_url="$(git -C "$SCION_LOCAL_PATH" config --get remote.origin.url || true)"
-    if [ -n "$origin_url" ]; then
+    local origin_canon
+    origin_canon="$(resolve_to_canonical_id "$SCION_LOCAL_PATH")"
+    if [ "$origin_canon" != "$SCION_LOCAL_PATH" ]; then
       info "Non-interactive: re-cloning scion from origin into tmp..."
-      if origin_canon="$(parse_repo_spec "$origin_url")"; then SCION_LOCAL_PATH="$(clone_remote_into_tmp "$origin_canon" "$TMP_BASE" "$SCION_REF")"; SCION_IS_LOCAL=true; fi
+      SCION_LOCAL_PATH="$(clone_remote_into_tmp "$origin_canon" "$TMP_BASE" "$SCION_REF")"
+      SCION_IS_LOCAL=true
     fi
   fi
 fi
