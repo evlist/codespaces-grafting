@@ -9,6 +9,9 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "mads-hartmann.bash-ide-vscode",
         "bmewburn.vscode-intelephense-client",
         "xdebug.php-debug",
         "ikappas.phpcs",
