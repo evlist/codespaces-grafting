@@ -6,7 +6,8 @@ SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=evlist/codespaces-grafting)
 [![Release](https://img.shields.io/github/v/release/evlist/codespaces-grafting?color=blue)](https://github.com/evlist/codespaces-grafting/releases)
-[![License](https://img.shields.io/badge/license-GPL--3.0--or--later%20OR%20MIT-blue)](LICENSE)
+[![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSES/GPL-3.0-or-later.txt)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSES/MIT.txt)
 [![Graft](https://img.shields.io/badge/uses-graft-green)](https://github.com/evlist/codespaces-grafting)
 
 <img src=".devcontainer/assets/icon.svg" alt="codespaces-grafting logo" title="codespaces-grafting" width="256" style="float:right;max-width:256px;height:auto" />
