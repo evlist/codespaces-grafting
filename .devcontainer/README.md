@@ -54,12 +54,13 @@ Scion structure (short)
 - Dry-run recommended: `bash bin/graft.sh --dry-run`
 
 Update semantics (summary)
-- New upstream file → added and baseline saved as `.orig`.
-- Local edits preserved when they differ from `.orig` (interactive choices: keep, replace, backup+replace, save upstream as `.dist`, or 3‑way merge).
-- Upstream samples saved as `.dist` when keeping local changes.
+- New scion file → added and scion (previous) saved as `.orig`.
+- Local edits preserved when they differ from `.orig` (interactive choices: keep, replace, backup+replace, save scion sample as `.dist`, or 3‑way merge).
+- Scion samples saved as `.dist` when keeping local changes.
+- Like Debian's dpkg: `.orig` = previous version, new version compared against local edits.
 
 Troubleshooting tips
-- If `git check-ignore` shows required paths are ignored, fix `.gitignore` or run interactively — non‑dry‑run installs abort to avoid hiding template files.
+- If `git check-ignore` shows required paths are ignored, fix `.gitignore` or run interactively — non‑dry‑run installs abort to avoid hiding scion files.
 - Use `.devcontainer/docs/` for step‑by‑step maintainer procedures and to record merging/upgrading policies.
 
 Notes on naming and scope

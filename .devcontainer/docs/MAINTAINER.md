@@ -43,7 +43,7 @@ printf "%s\n" ".devcontainer/" ".vscode/" ".devcontainer/bin/graft.sh" | git che
 ```
 
 Behavior
-- Non‑dry‑run installs should abort if any required paths are ignored. This prevents accidentally leaving repositories without needed template files.
+- Non‑dry‑run installs should abort if any required paths are ignored. This prevents accidentally leaving repositories without needed scion files.
 - Dry‑run should report ignored paths and continue without changing files so maintainers can fix `.gitignore` before committing.
 
 Action for maintainers
@@ -102,26 +102,26 @@ Examples
 
 ## Updater semantics and artifact conventions
 
-The installer/updater preserves local edits and uses conservative semantics inspired by package manager config handling.
+The installer/updater preserves local edits and uses conservative semantics inspired by Debian's dpkg config file handling.
 
-Conventions
-- `.orig` — baseline copy of the file as it was when the scion was first applied. Used as the merge ancestor.
-- `.dist` — an upstream sample saved when repository maintainers elect to keep their local version (matches the common ".example" or ".dist" pattern).
+Conventions (Debian-like)
+- `.orig` — scion (previous) snapshot: the file as it was when the scion was last applied. Used as the merge ancestor (like dpkg's .dpkg-old).
+- `.dist` — scion sample: the new scion version saved when repository maintainers elect to keep their local version (like dpkg's .dpkg-dist).
 - `.bak.<timestamp>` — timestamped backups created before destructive replacements.
 
-High-level rules
-- New upstream file (not present locally):
-  - Add the file, create a `.orig` baseline next to it.
-- Upstream changed, local unmodified (matches `.orig`):
-  - Replace the local file with upstream and update `.orig`.
-- Local differs from `.orig`:
+High-level rules (like Debian dpkg)
+- New scion file (not present locally):
+  - Add the file, create a `.orig` (scion previous) snapshot next to it.
+- Scion changed, local unmodified (matches `.orig`):
+  - Replace the local file with scion (new) and update `.orig`.
+- Local differs from `.orig` (scion previous):
   - Present interactive choices:
     - Keep local (no change).
     - Replace local (overwrite and create `.bak.<ts>`).
     - Backup + replace (save `.bak.<ts>` then replace).
-    - Save upstream sample as `<filename>.dist` (keep local, but keep upstream in a `.dist` copy).
-    - Attempt a 3‑way merge using the `.orig` baseline (if toolable).
-- Always preserve `.orig` to allow future 3-way merges and to track what was originally installed.
+    - Save scion sample as `<filename>.dist` (keep local, but save scion new in a `.dist` copy).
+    - Attempt a 3‑way merge using the `.orig` (scion previous) as merge base.
+- Always preserve `.orig` to allow future 3-way merges and to track the previous scion version.
 
 Interactive guidance
 - In interactive Codespace runs the script should show a short diff and the options above.
@@ -176,7 +176,7 @@ Common commands
 Common issues and remedies
 
 1. Files are missing after install (likely ignored)
-   - Symptom: template files not present after install (or are present locally but not committed).
+   - Symptom: scion files not present after install (or are present locally but not committed).
    - Check:
      ```bash
      printf "%s\n" ".devcontainer/" ".devcontainer/bin/graft.sh" | git check-ignore -v --stdin

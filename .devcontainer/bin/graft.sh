@@ -218,15 +218,15 @@ clone_remote_into_tmp() {
 }
 
 # ---- preflight .gitignore scan ----
-preflight_gitignore_from_upstream() {
+preflight_gitignore_from_scion() {
   local src="$1"
-  info "Preflight: scanning .gitignore impact against upstream paths (before copy)"
+  info "Preflight: scanning .gitignore impact against scion paths (before copy)"
   if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     warn "Not inside a Git work tree; skipping ignore scan."
     return 0
   fi
   if [ ! -d "$src/.vscode" ] && [ ! -d "$src/.devcontainer" ]; then
-    info "No upstream .vscode or .devcontainer found; skipping ignore scan."
+    info "No scion .vscode or .devcontainer found; skipping ignore scan."
     return 0
   fi
 
@@ -258,7 +258,7 @@ preflight_gitignore_from_upstream() {
   fi
 
   if [ -n "$ignored_lines" ]; then
-    info "Ignored upstream destinations detected (pre-copy):"
+    info "Ignored scion destinations detected (pre-copy):"
     while IFS= read -r line; do
       if printf '%s' "$line" | grep -q $'\t'; then
         rule="${line%%$'\t'*}"; path="${line#*$'\t'}"
@@ -274,7 +274,7 @@ preflight_gitignore_from_upstream() {
       err "Aborting: .gitignore would ignore files needed under .vscode/.devcontainer."
     fi
   else
-    info "No problematic ignores detected for upstream .vscode/.devcontainer destinations."
+    info "No problematic ignores detected for scion .vscode/.devcontainer destinations."
   fi
 }
 
@@ -293,14 +293,14 @@ apply_devcontainer() {
   rsync "${opts[@]}" "${excludes[@]}" "$src/.devcontainer/" "$dst/.devcontainer/"
 }
 
-# ---- apply .vscode with baseline handling ----
+# ---- apply .vscode with scion snapshot handling ----
 apply_vscode_baseline() {
   local src="$1" dst="$2"
   if [ ! -d "$src/.vscode" ]; then
     info "Scion has no .vscode; skipping."
     return 0
   fi
-  info "Updating .vscode (baseline: .orig; interactive prompts)"
+  info "Updating .vscode (scion snapshots: .orig; interactive prompts)"
   [ "$DRY_RUN" = "true" ] || mkdir -p "$dst/.vscode"
   umask 022
 
@@ -326,42 +326,42 @@ apply_vscode_baseline() {
 
     if [ ! -f "$base" ]; then
       if [ "$DRY_RUN" = "true" ]; then
-        info "[DRY] init baseline (.orig) for $rel"
+        info "[DRY] init scion (previous) (.orig) for $rel"
       else
         install -m 0644 "$dest" "$base"
       fi
     fi
 
-    local same_local_upstream=0 same_local_baseline=0 same_baseline_upstream=0
-    cmp -s "$dest" "$uf" && same_local_upstream=1 || true
-    cmp -s "$dest" "$base" && same_local_baseline=1 || true
-    cmp -s "$base" "$uf" && same_baseline_upstream=1 || true
+    local same_local_scion=0 same_local_prev_scion=0 same_prev_scion_new_scion=0
+    cmp -s "$dest" "$uf" && same_local_scion=1 || true
+    cmp -s "$dest" "$base" && same_local_prev_scion=1 || true
+    cmp -s "$base" "$uf" && same_prev_scion_new_scion=1 || true
 
-    if [ "$same_local_upstream" -eq 1 ]; then
-      info "keep (identical to upstream) $rel"
-      if [ "$same_baseline_upstream" -eq 0 ]; then
-        [ "$DRY_RUN" = "true" ] && info "[DRY] update baseline (.orig) for $rel" || install -m 0644 "$uf" "$base"
+    if [ "$same_local_scion" -eq 1 ]; then
+      info "keep (identical to scion) $rel"
+      if [ "$same_prev_scion_new_scion" -eq 0 ]; then
+        [ "$DRY_RUN" = "true" ] && info "[DRY] update scion (previous) (.orig) for $rel" || install -m 0644 "$uf" "$base"
       fi
       continue
     fi
 
-    if [ "$same_local_baseline" -eq 1 ] && [ "$same_baseline_upstream" -eq 0 ]; then
-      [ "$DRY_RUN" = "true" ] && info "[DRY] replace (unmodified locally; upstream changed) $rel" || { info "replace (unmodified locally; upstream changed) $rel"; install -m 0644 "$uf" "$dest"; install -m 0644 "$uf" "$base"; }
+    if [ "$same_local_prev_scion" -eq 1 ] && [ "$same_prev_scion_new_scion" -eq 0 ]; then
+      [ "$DRY_RUN" = "true" ] && info "[DRY] replace (unmodified locally; scion changed) $rel" || { info "replace (unmodified locally; scion changed) $rel"; install -m 0644 "$uf" "$dest"; install -m 0644 "$uf" "$base"; }
       continue
     fi
 
     if [ "$NON_INTERACTIVE" = "true" ]; then
-      [ "$DRY_RUN" = "true" ] && info "[DRY] save upstream sample -> $dist" || { info "save upstream sample to $dist; keeping local $rel"; install -m 0644 "$uf" "$dist"; }
+      [ "$DRY_RUN" = "true" ] && info "[DRY] save scion sample -> $dist" || { info "save scion sample to $dist; keeping local $rel"; install -m 0644 "$uf" "$dist"; }
       continue
     fi
 
     while :; do
       info ""
       info "Config file '$rel' differs."
-      info "  d: local vs upstream"
-      info "  2: local vs baseline (.orig)"
-      info "  3: baseline (.orig) vs upstream"
-      info "Actions: y=replace, n=keep, b=backup+replace, u=save upstream -> .dist, m=merge, r=revert to .orig, s=skip"
+      info "  d: local vs scion (new)"
+      info "  2: local vs scion (previous) (.orig)"
+      info "  3: scion (previous) vs scion (new)"
+      info "Actions: y=replace, n=keep, b=backup+replace, u=save scion sample -> .dist, m=merge, r=revert to .orig, s=skip"
 
       _prompt_read "Choose [d/2/3/y/n/b/u/m/r/s]:" choice
 
@@ -379,7 +379,7 @@ apply_vscode_baseline() {
           break
           ;;
         u|U)
-          if [ "$DRY_RUN" = "true" ]; then info "[DRY] save upstream sample -> $dist"; else info "save upstream sample to $dist; keeping local $rel"; install -m 0644 "$uf" "$dist"; fi
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] save scion sample -> $dist"; else info "save scion sample to $dist; keeping local $rel"; install -m 0644 "$uf" "$dist"; fi
           break
           ;;
         m|M)
@@ -402,7 +402,7 @@ apply_vscode_baseline() {
           fi
           ;;
         r|R)
-          if [ "$DRY_RUN" = "true" ]; then info "[DRY] revert $rel <- .orig"; else bak="${dest}.bak.$(date +%Y%m%d%H%M%S)"; info "revert local to baseline; backup to $(basename "$bak")"; cp -p "$dest" "$bak"; install -m 0644 "$base" "$dest"; fi
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] revert $rel <- .orig"; else bak="${dest}.bak.$(date +%Y%m%d%H%M%S)"; info "revert local to scion (previous); backup to $(basename "$bak")"; cp -p "$dest" "$bak"; install -m 0644 "$base" "$dest"; fi
           break
           ;;
         s|S|*) info "skip $rel"; break ;;
@@ -625,7 +625,7 @@ if [ "$CREATE_BRANCH" = "true" ]; then
 fi
 
 # run graft
-preflight_gitignore_from_upstream "$SCION_LOCAL_PATH"
+preflight_gitignore_from_scion "$SCION_LOCAL_PATH"
 apply_devcontainer "$SCION_LOCAL_PATH" "$STOCK_LOCAL_PATH"
 apply_vscode_baseline "$SCION_LOCAL_PATH" "$STOCK_LOCAL_PATH"
 
@@ -637,7 +637,7 @@ if [ "$FIRST_RUN" -eq 1 ] && [ "$DRY_RUN" != "true" ]; then
     ensure_gitignore_line() { local line="$1"; [ -f ".gitignore" ] || touch ".gitignore"; grep -Fxq "$line" ".gitignore" || printf '%s\n' "$line" >> ".gitignore"; }
     ensure_gitignore_line ".vscode/*.dist"; ensure_gitignore_line ".vscode/*.bak.*"; ensure_gitignore_line ".devcontainer/tmp/"; ensure_gitignore_line ".devcontainer/var/"
   else
-    if prompt_confirm "Append recommended .gitignore entries for graft baselines and temp dirs?" yes; then
+    if prompt_confirm "Append recommended .gitignore entries for graft scion snapshots and temp dirs?" yes; then
       ensure_gitignore_line() { local line="$1"; [ -f ".gitignore" ] || touch ".gitignore"; grep -Fxq "$line" ".gitignore" || printf '%s\n' "$line" >> ".gitignore"; }
       ensure_gitignore_line ".vscode/*.dist"; ensure_gitignore_line ".vscode/*.bak.*"; ensure_gitignore_line ".devcontainer/tmp/"; ensure_gitignore_line ".devcontainer/var/"
       info ".gitignore updated with recommended entries."
