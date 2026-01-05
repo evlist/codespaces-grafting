@@ -23,11 +23,14 @@ Scion structure (short)
 .devcontainer/
 ├── README.md             # this file (short)
 ├── docs/                 # extended scion docs (upgrade guides, internals)
+│   ├── FAQ.md            # frequently asked questions
+│   └── MAINTAINER.md     # detailed maintainer guide
 ├── assets/               # icons, images used in scion docs
 ├── devcontainer.json
 ├── Dockerfile
 ├── .cs_env               # base environment variables
 ├── .cs_env.d/            # additional env files (Debian .d style)
+│   └── graft.env         # scion provenance (tracks grafted version)
 ├── bin/
 │   └── graft.sh          # run this to graft the scion into a repo
 ├── sbin/
@@ -38,6 +41,24 @@ Scion structure (short)
 ├── var/                  # runtime data (gitignored)
 └── wp-content/           # WordPress content customizations
 ```
+
+.vscode structure (managed files)
+```
+.vscode/
+├── settings.json         # editor settings (managed with 3-way merge)
+├── settings.json.orig    # scion (previous) snapshot
+├── launch.json           # debug configurations (managed)
+├── launch.json.orig      # scion (previous) snapshot
+└── intelephense-stubs/   # PHP stubs for IntelliSense
+    └── wp-cli.php        # WP-CLI stubs
+```
+
+The `.vscode/` files listed above are **managed by graft.sh** and follow the 3-way merge semantics:
+- `.orig` files store the previous scion version for comparison
+- Local edits are preserved when they differ from `.orig`
+- Interactive prompts let you choose: keep local, accept scion, or merge
+
+All other `.vscode/` files you create are yours and won't be touched by upgrades.
 
 🔁 Upgrade & maintainer quick guide
 - Interactive (inside a Codespace) — recommended:
@@ -53,7 +74,19 @@ Scion structure (short)
   ```
 - Dry-run recommended: `bash bin/graft.sh --dry-run`
 
-Update semantics (summary)
+⚠️ File replacement behavior during upgrades
+
+**Scion files (.devcontainer/)** — silently replaced:
+- Most files in `.devcontainer/` are replaced during upgrades (rsync with `--delete`)
+- **Protected files:** `*.local` and `*.local.*` are excluded from sync (your customizations)
+- **Protected directories:** `tmp/`, `var/`, and `.cs_env.d/graft.env` are never overwritten
+
+**Managed files (.vscode/)** — interactive merge:
+- Files listed above (settings.json, launch.json, stubs) use 3-way merge with `.orig` snapshots
+- You get interactive prompts to preserve local changes
+- Other `.vscode/` files you create are never touched
+
+Update semantics (.vscode/ managed files)
 - New scion file → added and scion (previous) saved as `.orig`.
 - Local edits preserved when they differ from `.orig` (interactive choices: keep, replace, backup+replace, save scion sample as `.dist`, or 3‑way merge).
 - Scion samples saved as `.dist` when keeping local changes.
@@ -65,6 +98,10 @@ Troubleshooting tips
 
 Notes on naming and scope
 - Display name: `codespaces-grafting` (short alias: `cs-grafting`). Current implementation and examples target WordPress, but the pattern is generic and reusable for other repositories.
+
+📖 More help
+- [FAQ](docs/FAQ.md) — frequently asked questions
+- [MAINTAINER.md](docs/MAINTAINER.md) — detailed maintainer procedures
 
 ## License
 

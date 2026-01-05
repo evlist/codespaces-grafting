@@ -71,8 +71,11 @@ Project structure (high level)
 ```
 
 Want more?
-- Maintainers: see `.devcontainer/README.md` inside the scion for upgrade semantics and structure.
-- Advanced docs (hooks, customization): planned under `.devcontainer/docs/`.
+- Maintainers: see [.devcontainer/README.md](.devcontainer/README.md) for upgrade semantics and structure
+- [FAQ](.devcontainer/docs/FAQ.md) — frequently asked questions
+- [MAINTAINER.md](.devcontainer/docs/MAINTAINER.md) — detailed procedures
+
+📝 Note: This root `README.md` is **not copied** when grafting. Your stock repository keeps its own README. Only `.devcontainer/` and managed `.vscode/` files are grafted.
 
 ## License
 
