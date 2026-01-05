@@ -118,6 +118,48 @@ Then run `bash .devcontainer/bin/graft.sh upgrade` to re-apply that version.
 
 ## Design Decisions
 
+### Q: Wait, copying files from one repo to another? Isn't that a terrible pattern?
+**A:** For software libraries, absolutely! That's why we have package managers, dependency management tools, and proper versioning. But for **system configuration and infrastructure setup**, file copying is actually the standard approach:
+
+- **Operating systems**: Installation images copy thousands of files to disk
+- **Package managers**: `apt`, `yum`, `brew` all copy files from repositories to your system
+- **Container images**: Docker's `COPY` and `ADD` instructions literally copy files into images
+- **Configuration management**: Ansible, Chef, Puppet all copy configuration files to target systems
+
+**Why is this appropriate for Codespaces?**
+
+Codespaces are **virtual machines** (or containers with VM-like isolation). Just like installing an OS or configuring a server, you need to copy configuration files, scripts, and development environment setup to the machine. This isn't a code dependency—it's infrastructure provisioning.
+
+**What we're doing differently:**
+
+- **Debian-inspired semantics**: We borrowed proven patterns from `dpkg` (`.orig` snapshots, 3-way merges, `.dist` samples)
+- **Selective sync**: The `*.local.*` exclusion pattern lets you keep customizations
+- **Update-safe**: Upgrades preserve your local changes through interactive conflict resolution
+- **Transparent**: `--dry-run` shows exactly what will change before applying
+
+Think of it as "apt install devcontainer-template" rather than "npm install library".
+
+### Q: Shouldn't we use git subtree or submodules instead?
+**A:** These are valid approaches worth considering! However, they come with trade-offs:
+
+**git subtree/submodules challenges:**
+- **Complexity**: Subtree merge strategies and submodule update workflows confuse many users
+- **Merge conflicts**: Resolving conflicts in subtrees/submodules can be tricky, especially with binary files or large changesets
+- **History pollution**: Subtree merges can clutter your repository history
+- **Tooling gaps**: Not all Git GUIs handle submodules well; CI/CD pipelines need special configuration
+
+**Current approach benefits:**
+- **Simple mental model**: "Copy these files, exclude these patterns" is intuitive
+- **File-level control**: You see exactly which files exist in your repo (no hidden .git/modules)
+- **Standard Git workflow**: No special commands needed after initial graft
+- **CI-friendly**: Works everywhere Git works, no submodule init/update steps
+
+**That said**, we're open to exploring alternatives! If you have experience with subtree/submodules in devcontainer contexts and want to propose improvements:
+- Open a [GitHub Discussion](https://github.com/evlist/codespaces-grafting/discussions) to share your approach
+- File an [issue](https://github.com/evlist/codespaces-grafting/issues) with a concrete proposal
+
+Contributions and alternative implementations are welcome!
+
 ### Q: Why save a `.orig` baseline instead of just replacing files?
 **A:** It allows future updates to detect whether you've made local changes. When updating, the script compares:
 - Local file vs. scion (previous) → detects your edits
@@ -144,6 +186,49 @@ This scales better than a monolithic `.env` file.
 - **`install`** (scion → stock) = apply the scion into a repository
 - **`export`** (stock as scion) = package your repository as a new scion template
 - **`upgrade`** (stock with scion) = update the scion in an already-grafted repository
+
+### Q: Is this specific to testing WordPress plugins?
+**A:** No! Testing WordPress plugins happens to be my own use case, but the pattern is easily adaptable:
+
+- **WordPress themes**: Create a `25-themes.local.sh` hook (see [Customization](#8-customization))
+- **WordPress core development**: Modify bootstrap.sh to clone WP from git instead of downloading releases
+- **WP-CLI plugin development**: Focus on CLI rather than web interface
+
+The scion provides a ready-to-use WordPress environment, but you control what you test in it. If you have a specific use case or need guidance, open a [GitHub Discussion](https://github.com/evlist/codespaces-grafting/discussions) or [issue](https://github.com/evlist/codespaces-grafting/issues).
+
+### Q: Is this specific to WordPress, LAMP, or PHP?
+**A:** The **pattern** (scion/stock grafting with Debian-style `.d` directories) is completely generic and reusable for any tech stack.
+
+The **current implementation** happens to install a LAMP stack (Linux, Apache, MariaDB, PHP) and WordPress because that's what I needed. But:
+
+- `Dockerfile` can install Node.js, Python, Ruby, Go, or any runtime you need
+- `bootstrap.sh` can set up databases (PostgreSQL, MongoDB), message queues (Redis, RabbitMQ), or any services
+- The `.d` directory pattern works for any configuration management
+
+**Want to adapt it?**
+1. Fork this repository
+2. Replace the LAMP/WordPress parts with your stack
+3. Keep the grafting pattern, `.local.*` exclusions, and update semantics
+4. Share your adaptation! Open a [Discussion](https://github.com/evlist/codespaces-grafting/discussions) to showcase alternative implementations
+
+### Q: Why a single container? Docker is about isolation—shouldn't we use separate containers for the web server, database, and terminal?
+**A:** This is a **development and testing environment**, not a production deployment. Single-container simplicity wins here:
+
+**Advantages of single container:**
+- **Direct filesystem access**: Edit files, check logs, inspect databases without `docker exec` or volume mounts
+- **Simple debugging**: All processes visible with `ps`, `top`, no network/container boundary to cross
+- **Fast startup**: One container to build and start, not three with orchestration
+- **Lower cognitive load**: Focus on your code, not on Docker networking and volume management
+
+**Multi-container complexity:**
+- Database connection strings become trickier (container hostnames vs. localhost)
+- Log aggregation needs setup (each container logs separately)
+- Debugging requires `docker-compose exec db mariadb` instead of just `mariadb`
+- File permissions issues multiply across mounted volumes
+
+**Historical note:** This project actually started with a 3-container setup (web, db, CLI). It was painful. Check the [early commits](https://github.com/evlist/codespaces-grafting/commits/main) if you're curious about what we escaped from! 😅
+
+For **production deployments**, absolutely use container isolation. For **local development**, simplicity > purity.
 
 ---
 
