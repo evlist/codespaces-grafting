@@ -138,6 +138,9 @@ if [ ! -f "$DOCROOT/wp-config.php" ]; then
     --path="$DOCROOT" \
     --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST" \
     --skip-check
+  
+  log "Configuring direct filesystem method (no FTP prompts)..."
+  wp config set FS_METHOD direct --type=constant --path="$DOCROOT"
 fi
 
 if ! wp core is-installed --path="$DOCROOT" >/dev/null 2>&1; then
