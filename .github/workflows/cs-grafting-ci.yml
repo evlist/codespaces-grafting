@@ -9,7 +9,7 @@ on:
   # - WORKFLOWS_CI_ENABLED: "true" or "false"
   # - WORKFLOWS_CI_BRANCHES: "main,develop" (comma-separated branches, runtime filter)
   # - WORKFLOWS_CI_PLUGIN_DIR: "plugins-src/hello-world" (relative path)
-  # - WORKFLOWS_CI_TESTS: "phpunit,phpcs,wpcheck" (comma-separated test suites)
+  # - WORKFLOWS_CI_TESTS: "phpunit,wpcs,wpcheck" (comma-separated test suites)
   
   push:
   pull_request:
@@ -85,7 +85,7 @@ jobs:
           ci_enabled="${WORKFLOWS_CI_ENABLED_VAR:-${WORKFLOWS_CI_ENABLED:-true}}"
           branches_cfg="${WORKFLOWS_CI_BRANCHES_VAR:-${WORKFLOWS_CI_BRANCHES:-main}}"
           plugin_dir="${WORKFLOWS_CI_PLUGIN_DIR_VAR:-${WORKFLOWS_CI_PLUGIN_DIR:-plugins-src/hello-world}}"
-          tests_to_run="${WORKFLOWS_CI_TESTS_VAR:-${WORKFLOWS_CI_TESTS:-phpunit,phpcs}}"
+          tests_to_run="${WORKFLOWS_CI_TESTS_VAR:-${WORKFLOWS_CI_TESTS:-phpunit,wpcs}}"
           php_version="${WORKFLOWS_CI_PHP_VERSION_VAR:-${WORKFLOWS_CI_PHP_VERSION:-8.0}}"
 
           event_name="${{ github.event_name }}"
@@ -180,11 +180,14 @@ jobs:
           fi
 
       - name: Install WordPress Coding Standards (WPCS)
-        if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs')
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs') || contains(needs.check-enabled.outputs.tests_to_run, 'wpcs')
         run: |
           composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-          composer global require --no-interaction --no-progress dealerdirect/phpcodesniffer-composer-installer:^1.1 wp-coding-standards/wpcs:^3.0
-          phpcs --config-set installed_paths "$(composer global config home)/vendor/wp-coding-standards/wpcs"
+          composer global require --no-interaction --no-progress --with-all-dependencies \
+            dealerdirect/phpcodesniffer-composer-installer:^1.1 \
+            wp-coding-standards/wpcs:^3.0 \
+            phpcsstandards/phpcsutils:^1.1 \
+            phpcsstandards/phpcsextra:^1.2
           phpcs -i
 
       - name: Run PHPUnit tests
@@ -205,12 +208,12 @@ jobs:
             echo "⚠ No phpunit.xml or phpunit.xml.dist found, skipping PHPUnit tests"
           fi
 
-      - name: Run PHP CodeSniffer (phpcs)
-        if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs')
+      - name: Run PHP CodeSniffer (phpcs/wpcs)
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs') || contains(needs.check-enabled.outputs.tests_to_run, 'wpcs')
         run: |
           cd ${{ needs.check-enabled.outputs.plugin_dir }}
           if command -v phpcs &> /dev/null; then
-            phpcs --standard=WordPress . || true
+            phpcs --standard=WordPress .
           else
             echo "⚠ phpcs not found, skipping PHP CodeSniffer"
           fi
