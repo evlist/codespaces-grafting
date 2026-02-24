@@ -178,6 +178,14 @@ jobs:
             echo "⚠ No composer.json found in plugin directory"
           fi
 
+      - name: Install WordPress Coding Standards (WPCS)
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs')
+        run: |
+          composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global require --no-interaction --no-progress dealerdirect/phpcodesniffer-composer-installer:^1.1 wp-coding-standards/wpcs:^3.0
+          phpcs --config-set installed_paths "$(composer global config home)/vendor/wp-coding-standards/wpcs"
+          phpcs -i
+
       - name: Run PHPUnit tests
         if: contains(needs.check-enabled.outputs.tests_to_run, 'phpunit')
         run: |
