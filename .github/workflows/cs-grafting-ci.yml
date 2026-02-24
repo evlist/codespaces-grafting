@@ -182,10 +182,18 @@ jobs:
         if: contains(needs.check-enabled.outputs.tests_to_run, 'phpunit')
         run: |
           cd ${{ needs.check-enabled.outputs.plugin_dir }}
-          if [ -f phpunit.xml.dist ]; then
-            phpunit --configuration phpunit.xml.dist
+          config_file=""
+          if [ -f phpunit.xml ]; then
+            config_file="phpunit.xml"
+          elif [ -f phpunit.xml.dist ]; then
+            config_file="phpunit.xml.dist"
+          fi
+
+          if [ -n "$config_file" ]; then
+            echo "Using PHPUnit config: $config_file"
+            phpunit --configuration "$config_file"
           else
-            echo "⚠ No phpunit.xml.dist found, skipping PHPUnit tests"
+            echo "⚠ No phpunit.xml or phpunit.xml.dist found, skipping PHPUnit tests"
           fi
 
       - name: Run PHP CodeSniffer (phpcs)
