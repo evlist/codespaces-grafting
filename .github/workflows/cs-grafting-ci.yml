@@ -211,9 +211,8 @@ jobs:
       - name: Run PHP CodeSniffer (phpcs/wpcs)
         if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs') || contains(needs.check-enabled.outputs.tests_to_run, 'wpcs')
         run: |
-          cd ${{ needs.check-enabled.outputs.plugin_dir }}
           if command -v phpcs &> /dev/null; then
-            phpcs --standard=WordPress .
+            phpcs --standard=.vscode/phpcs.xml .
           else
             echo "⚠ phpcs not found, skipping PHP CodeSniffer"
           fi

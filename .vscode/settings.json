@@ -7,7 +7,10 @@
   "intelephense.cs_environment.phpVersion": "8.2",
   "intelephense.diagnostics.runtime": "8.2",
   "php.validate.executablePath": "/usr/bin/php",
-  "phpcs.standard": "WordPress",
+  "phpcs.enable": true,
+  "phpcs.executablePath": "/home/vscode/.composer/vendor/bin/phpcs",
+  "phpcs.autoConfigSearch": true,
+  "phpcs.standard": ".vscode/phpcs.xml",
   "phpcs.ignorePatterns": [
     "**/vendor/**",
     "**/.devcontainer/**"
