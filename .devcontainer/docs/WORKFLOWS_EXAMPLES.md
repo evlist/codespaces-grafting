@@ -19,7 +19,7 @@ Copy these into **Settings → Secrets and variables → Variables**:
 WORKFLOWS_CI_ENABLED = true
 WORKFLOWS_CI_BRANCHES = main,develop
 WORKFLOWS_CI_PLUGIN_DIR = plugins-src/my-plugin
-WORKFLOWS_CI_TESTS = phpunit,phpcs
+WORKFLOWS_CI_TESTS = phpunit,phpcs,wpcheck
 WORKFLOWS_CI_PHP_VERSION = 8.2
 
 WORKFLOWS_ZIP_ENABLED = true
@@ -81,7 +81,7 @@ WORKFLOWS_ZIP_PLUGIN_DIR = plugins-src/hello-world
 WORKFLOWS_CI_ENABLED = true
 WORKFLOWS_CI_BRANCHES = main,develop,feature/*
 WORKFLOWS_CI_PLUGIN_DIR = plugins-src/my-plugin
-WORKFLOWS_CI_TESTS = phpunit,phpcs,lint
+WORKFLOWS_CI_TESTS = phpunit,phpcs,lint,wpcheck
 WORKFLOWS_CI_PHP_VERSION = 8.3
 
 WORKFLOWS_ZIP_ENABLED = false
@@ -93,7 +93,7 @@ WORKFLOWS_ZIP_ENABLED = false
 WORKFLOWS_CI_ENABLED = true
 WORKFLOWS_CI_BRANCHES = main
 WORKFLOWS_CI_PLUGIN_DIR = plugins-src/my-plugin
-WORKFLOWS_CI_TESTS = phpunit,phpcs,lint
+WORKFLOWS_CI_TESTS = phpunit,phpcs,lint,wpcheck
 WORKFLOWS_CI_PHP_VERSION = 8.3
 
 WORKFLOWS_ZIP_ENABLED = true

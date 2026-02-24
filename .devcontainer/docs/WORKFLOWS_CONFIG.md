@@ -12,7 +12,7 @@ The workflows in `.github/workflows/` are configurable via **GitHub repository v
 
 1. **Which workflows run** (enable/disable CI, ZIP building)
 2. **Which branches are allowed to run jobs** (runtime filter: main, develop, staging, etc.)
-3. **Which tests execute** (phpunit, phpcs, lint, etc.)
+3. **Which tests execute** (phpunit, phpcs, lint, wpcheck, etc.)
 4. **Plugin directory location** (for monorepos or custom structures)
 5. **Artifact exclusions** (what files to exclude from ZIP builds)
 
@@ -42,7 +42,7 @@ Runtime-resolved variables in this workflow:
 | `WORKFLOWS_CI_ENABLED` | `true` | Enable/disable CI workflow | `true`, `false` |
 | `WORKFLOWS_CI_BRANCHES` | `main` | Comma-separated branches allowed to run CI job (runtime filter) | `main,develop,staging` |
 | `WORKFLOWS_CI_PLUGIN_DIR` | `plugins-src/hello-world` | Path to plugin directory | `plugins-src/my-plugin` |
-| `WORKFLOWS_CI_TESTS` | `phpunit,phpcs` | Comma-separated test suites to run | `phpunit`, `phpcs`, `lint` |
+| `WORKFLOWS_CI_TESTS` | `phpunit,phpcs` | Comma-separated test suites to run | `phpunit`, `phpcs`, `lint`, `wpcheck` |
 | `WORKFLOWS_CI_PHP_VERSION` | `8.0` | PHP version for tests | `8.0`, `8.1`, `8.2`, `8.3` |
 
 ### ZIP Build Workflow (`cs-grafting-plugin-zip.yml`)
@@ -161,11 +161,12 @@ If the same variable exists in both places, GitHub Variables take precedence.
 **Steps:**
 1. ✓ Verifies plugin directory exists
 2. ✓ Sets up PHP with configured version
-3. ✓ Installs WP-CLI
+3. ✓ Installs WP-CLI (only when `wpcheck` is enabled)
 4. ✓ Installs Composer dependencies (if composer.json exists)
 5. ✓ Runs enabled tests:
-   - **phpunit**: Runs PHPUnit tests (if phpunit.xml.dist exists)
+    - **phpunit**: Runs PHPUnit tests (prefers `phpunit.xml`, then `phpunit.xml.dist`)
    - **phpcs**: Runs PHP CodeSniffer with WordPress standard
+    - **wpcheck**: Runs WordPress.org Plugin Check via WP-CLI (`wp plugin check`)
    - **lint**: Runs custom `scripts/lint.sh` (if exists)
 
 ### ZIP Build Workflow (`cs-grafting-plugin-zip.yml`)
@@ -233,7 +234,7 @@ Value: phpunit,phpcs,lint
 
 ### Tests skip silently
 
-**Cause:** Test files don't exist (e.g., no phpunit.xml.dist or scripts/lint.sh).
+**Cause:** Test files/tools don't exist (e.g., no `phpunit.xml`/`phpunit.xml.dist`, no `scripts/lint.sh`, or missing prerequisites for `wpcheck`).
 
 **Solution:** Workflows print warnings (⚠) when test files are missing. Create them or disable those tests.
 

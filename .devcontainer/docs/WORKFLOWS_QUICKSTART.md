@@ -49,6 +49,11 @@ You can also put this in `.devcontainer/.cs_env`.
 WORKFLOWS_CI_TESTS = phpcs
 ```
 
+### Include WordPress Plugin Check
+```
+WORKFLOWS_CI_TESTS = phpunit,phpcs,wpcheck
+```
+
 ### Disable CI, keep only ZIP builds
 ```
 WORKFLOWS_CI_ENABLED = false

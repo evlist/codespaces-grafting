@@ -9,7 +9,7 @@ on:
   # - WORKFLOWS_CI_ENABLED: "true" or "false"
   # - WORKFLOWS_CI_BRANCHES: "main,develop" (comma-separated branches, runtime filter)
   # - WORKFLOWS_CI_PLUGIN_DIR: "plugins-src/hello-world" (relative path)
-  # - WORKFLOWS_CI_TESTS: "phpunit,phpcs" (comma-separated test suites)
+  # - WORKFLOWS_CI_TESTS: "phpunit,phpcs,wpcheck" (comma-separated test suites)
   
   push:
   pull_request:
@@ -164,6 +164,7 @@ jobs:
           tools: composer, phpunit, phpcs
 
       - name: Install WP-CLI
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'wpcheck')
         run: |
           curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
           chmod +x wp-cli.phar
@@ -213,6 +214,24 @@ jobs:
           else
             echo "⚠ phpcs not found, skipping PHP CodeSniffer"
           fi
+
+      - name: Run WordPress Plugin Check (wpcheck)
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'wpcheck')
+        run: |
+          set -euo pipefail
+
+          plugin_dir="${{ needs.check-enabled.outputs.plugin_dir }}"
+          plugin_slug="$(basename "$plugin_dir")"
+          wp_root="$RUNNER_TEMP/wordpress"
+
+          wp core download --path="$wp_root" --quiet
+          wp config create --path="$wp_root" --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1 --skip-check --quiet
+          wp db create --path="$wp_root" --quiet
+          wp core install --path="$wp_root" --url=http://localhost --title="CI" --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
+
+          wp plugin install plugin-check --activate --path="$wp_root" --quiet
+          wp plugin install "$GITHUB_WORKSPACE/$plugin_dir" --activate --path="$wp_root" --quiet
+          wp plugin check "$plugin_slug" --path="$wp_root"
 
       - name: Run custom lint script
         if: contains(needs.check-enabled.outputs.tests_to_run, 'lint')
