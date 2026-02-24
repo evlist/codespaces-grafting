@@ -161,7 +161,7 @@ jobs:
         with:
           php-version: ${{ needs.check-enabled.outputs.php_version }}
           extensions: mysqli, pdo_mysql, zip, xml
-          tools: composer, phpunit
+          tools: composer, phpunit, phpcs
 
       - name: Install WP-CLI
         run: |
