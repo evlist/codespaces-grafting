@@ -4,6 +4,9 @@
 
 name: Build Plugin ZIP
 
+permissions:
+  contents: write
+
 on:
   # Runtime configuration via GitHub variables (Settings > Secrets and variables > Variables):
   # - WORKFLOWS_ZIP_ENABLED: "true" or "false"
