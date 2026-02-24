@@ -12,6 +12,7 @@ on:
   # - WORKFLOWS_ZIP_EXCLUDE_PATTERNS: ".git*,node_modules/*,.env*,tests/*" (comma-separated)
   
   push:
+  workflow_dispatch:
   release:
     types:
       - published
