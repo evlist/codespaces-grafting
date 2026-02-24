@@ -36,7 +36,7 @@ Development tools included
 - **Common utilities**: curl, jq, less, unzip
 
 Terminology (short)
-- scion — the Codespace/devcontainer template (.devcontainer/.vscode)
+- scion — the Codespace/devcontainer template (.devcontainer/.vscode/.github)
 - stock — your repository getting the scion grafted
 - graft — the act of applying the scion (graft.sh)
 
@@ -78,6 +78,7 @@ Project structure (high level)
 │   ├── var/                      # runtime data (gitignored)
 │   └── wp-content/               # WordPress content customizations
 ├── .vscode/                      # editor templates & stubs (managed)
+├── .github/                      # workflows templates (managed)
 └── plugins-src/                  # example/sample plugin(s) (WP-focused examples)
 ```
 
@@ -87,12 +88,28 @@ The scion uses **Debian-style `.d` directories** for modular configuration:
 
 This makes customization easy: create `.local.sh` hooks (e.g., `25-themes.local.sh` for themes, `40-import.local.sh` for WP-CLI commands) that won't be overwritten during upgrades. See the [FAQ](.devcontainer/docs/FAQ.md#8-customization) for examples.
 
+## GitHub Workflows (Configurable CI/CD)
+
+Ready-to-use GitHub Actions workflows included:
+- **`cs-grafting-ci.yml`** — Run tests (PHPUnit, PHP CodeSniffer, custom lint scripts)
+- **`cs-grafting-plugin-zip.yml`** — Build and publish plugin ZIPs, manage nightly releases
+
+All workflows are **fully configurable** via GitHub Variables:
+- Enable/disable workflows
+- Choose which branches trigger them
+- Configure plugin directory (for monorepos)
+- Select which tests to run
+- Customize artifact exclusions
+
+See [.devcontainer/docs/WORKFLOWS_CONFIG.md](.devcontainer/docs/WORKFLOWS_CONFIG.md) for complete configuration guide.
+
 Want more?
 - Maintainers: see [.devcontainer/README.md](.devcontainer/README.md) for upgrade semantics and structure
 - [FAQ](.devcontainer/docs/FAQ.md) — frequently asked questions
 - [MAINTAINER.md](.devcontainer/docs/MAINTAINER.md) — detailed procedures
+- [Workflows Guide](.devcontainer/docs/WORKFLOWS_CONFIG.md) — GitHub Actions configuration
 
-📝 Note: This root `README.md` is **not copied** when grafting. Your stock repository keeps its own README. Only `.devcontainer/` and managed `.vscode/` files are grafted.
+📝 Note: This root `README.md` is **not copied** when grafting. Your stock repository keeps its own README. `.devcontainer/`, managed `.vscode/`, and managed `.github/` files are grafted.
 
 ## Support & Community
 

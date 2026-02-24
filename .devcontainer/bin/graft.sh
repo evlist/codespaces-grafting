@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later OR MIT
 
-# graft.sh -- apply a "scion" devcontainer/.vscode into a "stock" repository
+# graft.sh -- apply a "scion" devcontainer/.vscode/.github into a "stock" repository
 #
 # Usage:
 #   .devcontainer/bin/graft.sh [install|export|upgrade] [--scion <scion>] [--stock <stock>]
@@ -224,8 +224,8 @@ preflight_gitignore_from_scion() {
     warn "Not inside a Git work tree; skipping ignore scan."
     return 0
   fi
-  if [ ! -d "$src/.vscode" ] && [ ! -d "$src/.devcontainer" ]; then
-    info "No scion .vscode or .devcontainer found; skipping ignore scan."
+  if [ ! -d "$src/.vscode" ] && [ ! -d "$src/.devcontainer" ] && [ ! -d "$src/.github" ]; then
+    info "No scion .vscode, .devcontainer or .github found; skipping ignore scan."
     return 0
   fi
 
@@ -235,6 +235,8 @@ preflight_gitignore_from_scion() {
     [ -d "$src/.vscode" ] && find "$src/.vscode" -type f -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
     [ -d "$src/.devcontainer" ] && find "$src/.devcontainer" -type d -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
     [ -d "$src/.devcontainer" ] && find "$src/.devcontainer" -type f -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
+    [ -d "$src/.github" ] && find "$src/.github" -type d -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
+    [ -d "$src/.github" ] && find "$src/.github" -type f -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
   }
 
   local ignored_lines=""
@@ -270,10 +272,10 @@ preflight_gitignore_from_scion() {
       info "Dry-run: please fix .gitignore. Continuing without changes."
       return 0
     else
-      err "Aborting: .gitignore would ignore files needed under .vscode/.devcontainer."
+      err "Aborting: .gitignore would ignore files needed under .vscode/.devcontainer/.github."
     fi
   else
-    info "No problematic ignores detected for scion .vscode/.devcontainer destinations."
+    info "No problematic ignores detected for scion .vscode/.devcontainer/.github destinations."
   fi
 }
 
@@ -408,6 +410,124 @@ apply_vscode_baseline() {
       esac
     done
   done < <(find "$src/.vscode" -type f -print0)
+}
+
+# ---- apply .github with scion snapshot handling ----
+apply_github_baseline() {
+  local src="$1" dst="$2"
+  if [ ! -d "$src/.github" ]; then
+    info "Scion has no .github; skipping."
+    return 0
+  fi
+  info "Updating .github (scion snapshots: .orig; interactive prompts)"
+  [ "$DRY_RUN" = "true" ] || mkdir -p "$dst/.github"
+  umask 022
+
+  while IFS= read -r -d '' uf; do
+    local rel dest base dist
+    rel="${uf#"$src/"}"
+    dest="$dst/$rel"
+    base="${dest}.orig"
+    dist="${dest}.dist"
+
+    [ "$DRY_RUN" = "true" ] || mkdir -p "$(dirname "$dest")"
+
+    if [ ! -f "$dest" ]; then
+      if [ "$DRY_RUN" = "true" ]; then
+        info "[DRY] add $rel"
+      else
+        info "add $rel"
+        install -m 0644 "$uf" "$dest"
+        install -m 0644 "$uf" "$base"
+      fi
+      continue
+    fi
+
+    if [ ! -f "$base" ]; then
+      if [ "$DRY_RUN" = "true" ]; then
+        info "[DRY] init scion (previous) (.orig) for $rel"
+      else
+        install -m 0644 "$dest" "$base"
+      fi
+    fi
+
+    local same_local_scion=0 same_local_prev_scion=0 same_prev_scion_new_scion=0
+    cmp -s "$dest" "$uf" && same_local_scion=1 || true
+    cmp -s "$dest" "$base" && same_local_prev_scion=1 || true
+    cmp -s "$base" "$uf" && same_prev_scion_new_scion=1 || true
+
+    if [ "$same_local_scion" -eq 1 ]; then
+      info "keep (identical to scion) $rel"
+      if [ "$same_prev_scion_new_scion" -eq 0 ]; then
+        [ "$DRY_RUN" = "true" ] && info "[DRY] update scion (previous) (.orig) for $rel" || install -m 0644 "$uf" "$base"
+      fi
+      continue
+    fi
+
+    if [ "$same_local_prev_scion" -eq 1 ] && [ "$same_prev_scion_new_scion" -eq 0 ]; then
+      [ "$DRY_RUN" = "true" ] && info "[DRY] replace (unmodified locally; scion changed) $rel" || { info "replace (unmodified locally; scion changed) $rel"; install -m 0644 "$uf" "$dest"; install -m 0644 "$uf" "$base"; }
+      continue
+    fi
+
+    if [ "$NON_INTERACTIVE" = "true" ]; then
+      [ "$DRY_RUN" = "true" ] && info "[DRY] save scion sample -> $dist" || { info "save scion sample to $dist; keeping local $rel"; install -m 0644 "$uf" "$dist"; }
+      continue
+    fi
+
+    while :; do
+      info ""
+      info "Config file '$rel' differs."
+      info "  d: local vs scion (new)"
+      info "  2: local vs scion (previous) (.orig)"
+      info "  3: scion (previous) vs scion (new)"
+      info "Actions: y=replace, n=keep, b=backup+replace, u=save scion sample -> .dist, m=merge, r=revert to .orig, s=skip"
+
+      _prompt_read "Choose [d/2/3/y/n/b/u/m/r/s]:" choice
+
+      case "${choice:-s}" in
+        d|D) udiff "$dest" "$uf"; continue ;;
+        2) udiff "$dest" "$base"; continue ;;
+        3) udiff "$base" "$uf"; continue ;;
+        y|Y)
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] replace $rel"; else install -m 0644 "$uf" "$dest"; install -m 0644 "$uf" "$base"; fi
+          break
+          ;;
+        n|N) info "keep local $rel"; break ;;
+        b|B)
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] backup+replace $rel"; else bak="${dest}.bak.$(date +%Y%m%d%H%M%S)"; info "backup local to $(basename "$bak") and replace $rel"; cp -p "$dest" "$bak"; install -m 0644 "$uf" "$dest"; install -m 0644 "$uf" "$base"; fi
+          break
+          ;;
+        u|U)
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] save scion sample -> $dist"; else info "save scion sample to $dist; keeping local $rel"; install -m 0644 "$uf" "$dist"; fi
+          break
+          ;;
+        m|M)
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] attempt merge $rel"; else
+            merged="$(mktemp)"
+            if command -v git >/dev/null 2>&1; then git merge-file -p "$dest" "$base" "$uf" > "$merged" || true; else diff3 -m "$dest" "$base" "$uf" > "$merged" || true; fi
+            info "---- merged preview (first 60 lines) ----"
+            head -n 60 "$merged" || true
+            if prompt_confirm "Apply merged result to $rel?" no; then
+              install -m 0644 "$merged" "$dest"
+              install -m 0644 "$uf" "$base"
+              info "merged applied"
+              rm -f "$merged"
+              break
+            else
+              info "merge discarded"
+              rm -f "$merged"
+              continue
+            fi
+          fi
+          ;;
+        r|R)
+          if [ "$DRY_RUN" = "true" ]; then info "[DRY] revert $rel <- .orig"; else bak="${dest}.bak.$(date +%Y%m%d%H%M%S)"; info "revert local to scion (previous); backup to $(basename "$bak")"; cp -p "$dest" "$bak"; install -m 0644 "$base" "$dest"; fi
+          break
+          ;;
+        s|S|*) info "skip $rel"; break ;;
+      esac
+    done
+  done < <(find "$src/.github" -type f -print0)
 }
 
 # ---- helpers ----
@@ -654,6 +774,7 @@ fi
 preflight_gitignore_from_scion "$SCION_LOCAL_PATH"
 apply_devcontainer "$SCION_LOCAL_PATH" "$STOCK_LOCAL_PATH"
 apply_vscode_baseline "$SCION_LOCAL_PATH" "$STOCK_LOCAL_PATH"
+apply_github_baseline "$SCION_LOCAL_PATH" "$STOCK_LOCAL_PATH"
 
 # optional setup guidance (interactive)
 if [ "$DRY_RUN" != "true" ]; then
