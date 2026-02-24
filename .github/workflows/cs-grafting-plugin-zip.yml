@@ -186,7 +186,7 @@ jobs:
           eval "zip -r \"$GITHUB_WORKSPACE/dist/${plugin_name}.zip\" \"$plugin_name\" ${exclude_args}"
           
           echo "✓ ZIP created successfully"
-          ls -lh dist/*.zip
+          ls -lh "$GITHUB_WORKSPACE"/dist/*.zip
 
       - name: Upload to workflow artifacts
         uses: actions/upload-artifact@v4
