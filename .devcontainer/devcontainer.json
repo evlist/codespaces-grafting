@@ -16,7 +16,7 @@
         "mads-hartmann.bash-ide-vscode",
         "bmewburn.vscode-intelephense-client",
         "xdebug.php-debug",
-        "ikappas.phpcs",
+        "valeryanm.vscode-phpsab",
         "neilbrayfield.php-docblocker",
         "johnbillion.vscode-wordpress-hooks",    // optional: WP hooks IntelliSense
         "ms-azuretools.vscode-docker"            // Microsoft Docker (Container Tools)
