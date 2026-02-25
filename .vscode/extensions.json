@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "valeryanm.vscode-phpsab"
+  ],
+  "unwantedRecommendations": [
+    "ikappas.phpcs"
+  ]
+}

@@ -7,12 +7,16 @@
   "intelephense.cs_environment.phpVersion": "8.2",
   "intelephense.diagnostics.runtime": "8.2",
   "php.validate.executablePath": "/usr/bin/php",
-  "phpcs.enable": true,
-  "phpcs.executablePath": "/home/vscode/.composer/vendor/bin/phpcs",
-  "phpcs.autoConfigSearch": true,
-  "phpcs.standard": ".vscode/phpcs.xml",
-  "phpcs.ignorePatterns": [
+  "phpsab.snifferEnable": true,
+  "phpsab.snifferMode": "onType",
+  "phpsab.executablePathCS": "/home/vscode/.composer/vendor/bin/phpcs",
+  "phpsab.autoRulesetSearch": false,
+  "phpsab.standard": ".vscode/phpcs.xml",
+  "phpsab.excludeGlobs": [
     "**/vendor/**",
+    "**/node_modules/**",
     "**/.devcontainer/**"
-  ]
+  ],
+  "phpsab.phpExecutablePath": "/usr/bin/php",
+  "phpsab.debug": true
 }
