@@ -85,7 +85,7 @@ jobs:
           ci_enabled="${WORKFLOWS_CI_ENABLED_VAR:-${WORKFLOWS_CI_ENABLED:-true}}"
           branches_cfg="${WORKFLOWS_CI_BRANCHES_VAR:-${WORKFLOWS_CI_BRANCHES:-main}}"
           plugin_dir="${WORKFLOWS_CI_PLUGIN_DIR_VAR:-${WORKFLOWS_CI_PLUGIN_DIR:-plugins-src/hello-world}}"
-          tests_to_run="${WORKFLOWS_CI_TESTS_VAR:-${WORKFLOWS_CI_TESTS:-phpunit,wpcs}}"
+          tests_to_run="${WORKFLOWS_CI_TESTS_VAR:-${WORKFLOWS_CI_TESTS:-phpunit,wpcs,wpcheck}}"
           php_version="${WORKFLOWS_CI_PHP_VERSION_VAR:-${WORKFLOWS_CI_PHP_VERSION:-8.0}}"
 
           event_name="${{ github.event_name }}"
