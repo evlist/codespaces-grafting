@@ -185,7 +185,7 @@ If the same variable exists in both places, GitHub Variables take precedence.
 1. ✓ Verifies plugin directory exists
 2. ✓ Creates ZIP artifact excluding configured patterns
 3. ✓ Uploads to GitHub Actions artifacts (transient, ~90 days)
-4. ✓ Updates nightly pre-release using branch-specific tag `${WORKFLOWS_ZIP_NIGHTLY_TAG}-<branch-slug>`
+4. ✓ Recreates nightly pre-release using branch-specific tag `${WORKFLOWS_ZIP_NIGHTLY_TAG}-<branch-slug>` (ensures tag, source archives, and assets match latest push)
 5. ✓ Uploads to release assets (on published release)
 
 ---
