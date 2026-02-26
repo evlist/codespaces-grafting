@@ -10,6 +10,7 @@
   "phpsab.snifferEnable": true,
   "phpsab.snifferMode": "onType",
   "phpsab.executablePathCS": "/home/vscode/.composer/vendor/bin/phpcs",
+  "phpsab.executablePathCBF": "/home/vscode/.composer/vendor/bin/phpcbf",
   "phpsab.autoRulesetSearch": false,
   "phpsab.standard": ".vscode/phpcs.xml",
   "phpsab.excludeGlobs": [

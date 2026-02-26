@@ -388,6 +388,24 @@ Use `--non-interactive` to skip prompts and speed up automated runs.
 ### Q: Can I use graft.sh on Windows?
 **A:** Yes, if you have Git Bash, WSL, or a similar Bash environment. The script is pure Bash with standard Unix tools (rsync, git, etc.).
 
+### Q: PHPCS works in terminal but no diagnostics appear in VS Code Problems. Why?
+**A:** This is usually an extension host issue, not a PHPCS issue.
+
+If `phpcs` works in terminal but VS Code Problems stays empty:
+
+1. Open **Output** and check the extension channel used for PHPCS (for this project: PHPSAB).
+2. Check **Log (Extension Host)** for runtime errors.
+3. If you see `PendingMigrationError: navigator is now a global in nodejs`, a third-party extension is crashing the host before PHPCS diagnostics are published.
+
+Known conflicting extension in this environment:
+- `GitHub.copilot-chat` (certain versions)
+
+Recommended action:
+- Disable/uninstall the crashing extension locally and reload the window.
+- Keep `valeryanm.vscode-phpsab` enabled for PHPCS diagnostics.
+
+Note: `ikappas.phpcs` is deprecated and should not be used in this repository.
+
 ---
 
 ## 8. Customization

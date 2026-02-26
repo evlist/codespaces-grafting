@@ -3,6 +3,8 @@
     "valeryanm.vscode-phpsab"
   ],
   "unwantedRecommendations": [
-    "ikappas.phpcs"
+    "ikappas.phpcs",
+    "GitHub.copilot-chat",
+    "GitHub.codespaces"
   ]
 }
