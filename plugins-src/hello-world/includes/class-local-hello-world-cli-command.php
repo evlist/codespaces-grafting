@@ -2,6 +2,10 @@
 /**
  * WP-CLI command implementation for Local Hello World.
  *
+ * SPDX-FileCopyrightText: 2025, 2026 Eric van der Vlist <vdv@dyomedea.com>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later OR MIT
+ *
  * @package LocalHelloWorld
  */
 
