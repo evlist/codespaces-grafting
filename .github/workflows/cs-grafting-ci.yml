@@ -9,7 +9,7 @@ on:
   # - WORKFLOWS_CI_ENABLED: "true" or "false"
   # - WORKFLOWS_CI_BRANCHES: "main,develop" (comma-separated branches, runtime filter)
   # - WORKFLOWS_CI_PLUGIN_DIR: "plugins-src/hello-world" (relative path)
-  # - WORKFLOWS_CI_TESTS: "phpunit,wpcs,wpcheck" (comma-separated test suites)
+  # - WORKFLOWS_CI_TESTS: "phpunit,wpcs,wpcheck,reuse" (comma-separated test suites)
   
   push:
   pull_request:
@@ -179,6 +179,11 @@ jobs:
             echo "⚠ No composer.json found in plugin directory"
           fi
 
+      - name: Install REUSE tool
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'reuse')
+        run: |
+          python3 -m pip install --user --upgrade reuse
+
       - name: Install WordPress Coding Standards (WPCS)
         if: contains(needs.check-enabled.outputs.tests_to_run, 'phpcs') || contains(needs.check-enabled.outputs.tests_to_run, 'wpcs')
         run: |
@@ -235,6 +240,11 @@ jobs:
           cp -a "$GITHUB_WORKSPACE/$plugin_dir/." "$wp_root/wp-content/plugins/$plugin_slug/"
           wp plugin activate "$plugin_slug" --path="$wp_root" --quiet
           wp plugin check "$plugin_slug" --path="$wp_root"
+
+      - name: Run REUSE lint
+        if: contains(needs.check-enabled.outputs.tests_to_run, 'reuse')
+        run: |
+          ~/.local/bin/reuse lint
 
       - name: Run custom lint script
         if: contains(needs.check-enabled.outputs.tests_to_run, 'lint')

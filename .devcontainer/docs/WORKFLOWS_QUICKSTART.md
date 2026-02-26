@@ -54,6 +54,11 @@ WORKFLOWS_CI_TESTS = phpcs
 WORKFLOWS_CI_TESTS = phpunit,phpcs,wpcheck
 ```
 
+### Include REUSE license lint
+```
+WORKFLOWS_CI_TESTS = phpunit,phpcs,reuse
+```
+
 ### Disable CI, keep only ZIP builds
 ```
 WORKFLOWS_CI_ENABLED = false
