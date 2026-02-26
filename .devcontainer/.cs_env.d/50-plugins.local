@@ -9,4 +9,4 @@ PLUGIN_SLUG=local-hello-world
 PLUGIN_DIR=plugins-src/hello-world
 
 # Additional Plugins (comma-separated)
-WP_PLUGINS=loco-translate
+WP_PLUGINS=plugin-check
