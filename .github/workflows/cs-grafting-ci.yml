@@ -231,7 +231,9 @@ jobs:
           wp core install --path="$wp_root" --url=http://localhost --title="CI" --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
 
           wp plugin install plugin-check --activate --path="$wp_root" --quiet
-          wp plugin install "$GITHUB_WORKSPACE/$plugin_dir" --activate --path="$wp_root" --quiet
+          mkdir -p "$wp_root/wp-content/plugins/$plugin_slug"
+          cp -a "$GITHUB_WORKSPACE/$plugin_dir/." "$wp_root/wp-content/plugins/$plugin_slug/"
+          wp plugin activate "$plugin_slug" --path="$wp_root" --quiet
           wp plugin check "$plugin_slug" --path="$wp_root"
 
       - name: Run custom lint script

@@ -27,6 +27,8 @@ for conf_dir in /etc/php/*/cli/conf.d; do
 ; Managed by codespaces-grafting start hook.
 ; Prevent noisy CLI debug attempts while keeping opt-in debugging possible.
 xdebug.start_with_request=trigger
+xdebug.log=/dev/null
+xdebug.log_level=0
 EOF
 
   updated=$((updated + 1))
