@@ -33,6 +33,8 @@ class Local_Hello_World_CLI_Command {
 	 * @return void
 	 */
 	public function greet( $args, $_assoc_args ) {
+		unset( $_assoc_args );
+
 		$name = isset( $args[0] ) ? $args[0] : 'World';
 		WP_CLI::success( sprintf( 'Hello, %s!', $name ) );
 	}
@@ -52,6 +54,8 @@ class Local_Hello_World_CLI_Command {
 	 * @return void
 	 */
 	public function info( $_args, $_assoc_args ) {
+		unset( $_args, $_assoc_args );
+
 		$plugin_data = get_plugin_data( LOCAL_HELLO_WORLD_PLUGIN_FILE );
 		WP_CLI::line( 'Plugin Information:' );
 		WP_CLI::line( '- Name: ' . $plugin_data['Name'] );
