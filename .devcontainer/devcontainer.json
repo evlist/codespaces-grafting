@@ -11,6 +11,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "GitHub.codespaces",
         "GitHub.copilot",
         "mads-hartmann.bash-ide-vscode",
         "bmewburn.vscode-intelephense-client",

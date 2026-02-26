@@ -4,7 +4,6 @@
   ],
   "unwantedRecommendations": [
     "ikappas.phpcs",
-    "GitHub.copilot-chat",
-    "GitHub.codespaces"
+    "GitHub.copilot-chat"
   ]
 }
