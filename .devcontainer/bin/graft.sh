@@ -277,8 +277,10 @@ preflight_gitignore_from_scion() {
     local base="$src"
     [ -d "$src/.vscode" ] && find "$src/.vscode" -type d -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
     [ -d "$src/.vscode" ] && find "$src/.vscode" -type f -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
-    [ -d "$src/.devcontainer" ] && find "$src/.devcontainer" -type d -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
-    [ -d "$src/.devcontainer" ] && find "$src/.devcontainer" -type f -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
+    [ -d "$src/.devcontainer" ] && find "$src/.devcontainer" \
+      \( \( -type d \( -name tmp -o -name var \) \) -o -name '*.local' -o -name '*.local.*' \) -prune -o \
+      \( -type d -o -type f \) -print0 2>/dev/null \
+      | while IFS= read -r -d '' path; do printf '%s\0' "${path#"$base/"}"; done
     [ -d "$src/.github" ] && find "$src/.github" -type d -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
     [ -d "$src/.github" ] && find "$src/.github" -type f -print0 2>/dev/null | while IFS= read -r -d '' p; do printf '%s\0' "${p#"$base/"}"; done
   }
